@@ -13,9 +13,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   extra: {
     mushroomApiKey: process.env.MUSHROOM_API_KEY, // From .env file
-    fallbackLocation: { // Coordinates for Växjö
-      latitude: 56.8777,
-      longitude: 14.8094
+    fallbackLocation: { // From .env file
+      latitude: parseFloat(process.env.FALLBACK_LAT),
+      longitude: parseFloat(process.env.FALLBACK_LON),
     }
   },
   ios: {

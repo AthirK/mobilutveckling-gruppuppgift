@@ -16,7 +16,6 @@ import {
   View
 } from 'react-native';
 
-
 interface MushroomSuggestion {
   name: string;
   probability: number;
@@ -42,7 +41,7 @@ export default function TabTwoScreen() {
   const [suggestions, setSuggestions] = useState<MushroomSuggestion[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [currentLocation, setCurrentLocation] = useState<{latitude: number; longitude: number} | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
 
   useEffect(() => {
@@ -108,7 +107,6 @@ export default function TabTwoScreen() {
       if (!result.canceled && result.assets[0].uri) {
         setSelectedImage(result.assets[0].uri);
         setSuggestions([]);
-        identifyMushroom(result.assets[0].uri);
       }
     } catch (error) {
       console.log('Error picking image: ', error);
@@ -132,7 +130,6 @@ export default function TabTwoScreen() {
       if (!result.canceled && result.assets[0].uri) {
         setSelectedImage(result.assets[0].uri);
         setSuggestions([]);
-        identifyMushroom(result.assets[0].uri);
       }
     } catch (error) {
       console.log('Error taking photo: ', error);
@@ -148,43 +145,76 @@ export default function TabTwoScreen() {
     setLoading(true);
 
     try {
-      const fileInfo = await FileSystem.getInfoAsync(imageUri);
-      if (!fileInfo.exists) {
-        console.log('File not found:', imageUri);
-        return;
-      }
+      // With method for native - and web for development/testing
+      if (Platform.OS === 'web') {
+        // For web
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
 
-      const extension = imageUri.split('.').pop() || 'jpg';
-      const cachePath = FileSystem.cacheDirectory + `upload.${extension}`;
-      await FileSystem.copyAsync({ from: imageUri, to: cachePath });
+        const formData = new FormData();
+        formData.append('images', blob, 'photo.jpg');
 
-      const formData = new FormData();
-      formData.append('images', {
-        uri: cachePath,
-        name: `photo.${extension}`,
-        type: extension === 'png' ? 'image/png' : 'image/jpeg',
-      } as any);
+        const apiResponse = await fetch('https://mushroom.kindwise.com/api/v1/identification', {
+          method: 'POST',
+          headers: {
+            'Api-Key': mushroomApiKey,
+          },
+          body: formData,
+        });
 
-      const apiResponse = await fetch('https://mushroom.kindwise.com/api/v1/identification', {
-        method: 'POST',
-        headers: {
-          'Api-Key': mushroomApiKey,
-        },
-        body: formData,
-      });
+        if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
 
-      if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
+        const data = await apiResponse.json();
 
-      const data = await apiResponse.json();
-
-      if (data.result?.classification?.suggestions?.length > 0) {
-        const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
-          name: s.name,
-          probability: s.probability,
-        }));
-        setSuggestions(mushroomSuggestions);
+        if (data.result?.classification?.suggestions?.length > 0) {
+          const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
+            name: s.name,
+            probability: s.probability,
+          }));
+          setSuggestions(mushroomSuggestions);
+        } else {
+          console.log('No mushroom identified');
+        }
       } else {
-        console.log('No mushroom identified');
+        // For native (iOS/Android)
+        const fileInfo = await FileSystem.getInfoAsync(imageUri);
+        if (!fileInfo.exists) {
+          console.log('File not found:', imageUri);
+          return;
+        }
+
+        const extension = imageUri.split('.').pop() || 'jpg';
+        const cachePath = FileSystem.cacheDirectory + `upload.${extension}`;
+        await FileSystem.copyAsync({ from: imageUri, to: cachePath });
+
+        const formData = new FormData();
+        formData.append('images', {
+          uri: cachePath,
+          name: `photo.${extension}`,
+          type: extension === 'png' ? 'image/png' : 'image/jpeg',
+        } as any);
+
+        const apiResponse = await fetch('https://mushroom.kindwise.com/api/v1/identification', {
+          method: 'POST',
+          headers: {
+            'Api-Key': mushroomApiKey,
+          },
+          body: formData,
+        });
+
+        if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
+
+        const data = await apiResponse.json();
+
+        if (data.result?.classification?.suggestions?.length > 0) {
+          const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
+            name: s.name,
+            probability: s.probability,
+          }));
+          setSuggestions(mushroomSuggestions);
+        } else {
+          console.log('No mushroom identified');
+        }
       }
     } catch (error) {
       console.log('Identification error:', error);
@@ -234,16 +264,13 @@ export default function TabTwoScreen() {
     }
   };
 
-  const resetSelection = () => {
-    setSelectedImage(null);
-    setSuggestions([]);
-  };
+  // Placeholder image
+  const placeholderImage = require('../../assets/images/placeholder.png');
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        {/*<Text style={styles.title}>Mushroom Finder</Text>*/}
-        <Text style={styles.description}>Identify and collect mushrooms</Text>
+        <Text style={styles.title}>Identify and collect mushrooms</Text>
 
         <View style={styles.locationContainer}>
           {locationLoading ? (
@@ -258,23 +285,32 @@ export default function TabTwoScreen() {
         </View>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.button} onPress={takePhoto}>
-          <Text style={styles.buttonText}>📸 Camera</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={pickImage}>
-          <Text style={styles.buttonText}>🖼️ Gallery</Text>
-        </Pressable>
+      <View style={styles.imageContainer}>
+        <Image
+          source={selectedImage ? { uri: selectedImage } : placeholderImage}
+          style={styles.selectedImage}
+        />
       </View>
 
-      {selectedImage && (
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
-          <Pressable style={styles.resetButton} onPress={resetSelection}>
-            <Text style={styles.resetButtonText}>New Image</Text>
-          </Pressable>
-        </View>
-      )}
+      <View style={styles.buttonContainer}>
+        <Pressable style={[styles.button, styles.cameraButton]} onPress={takePhoto}>
+          <Text style={styles.buttonText}>📸 Camera</Text>
+        </Pressable>
+        <Pressable style={[styles.button, styles.galleryButton]} onPress={pickImage}>
+          <Text style={styles.buttonText}>🖼️ Gallery</Text>
+        </Pressable>
+        <Pressable //Disable identify button if loading or no image, and change style for this
+          style={({ pressed }) => [
+            styles.button,
+            styles.identifyButton,
+            (loading || !selectedImage) && styles.disabledButton
+          ]}
+          onPress={() => selectedImage && identifyMushroom(selectedImage)}
+          disabled={loading || !selectedImage}
+        >
+          <Text style={styles.buttonText}>🔍 Identify</Text>
+        </Pressable>
+      </View>
 
       {loading && (
         <View style={styles.loadingContainer}>
@@ -287,8 +323,8 @@ export default function TabTwoScreen() {
         <View style={styles.suggestionsContainer}>
           <Text style={styles.suggestionsTitle}>Top Matches:</Text>
           {suggestions.map((mushroom, index) => (
-            <Pressable 
-              key={index} 
+            <Pressable
+              key={index}
               style={styles.mushroomButton}
               onPress={() => addToCollection(mushroom.name)}
             >
@@ -319,59 +355,65 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    marginTop: 20,
     marginBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 16,
     color: '#666',
-    marginTop: 8,
   },
   locationContainer: {
     marginTop: 8,
   },
   locationText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     fontStyle: 'italic',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    padding: 16,
-    borderRadius: 12,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
   },
   imageContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
   selectedImage: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     borderRadius: 12,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
-  resetButton: {
-    backgroundColor: '#FF9800',
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 20,
+    flexWrap: 'wrap',
+  },
+  button: {
     padding: 12,
     borderRadius: 8,
+    minWidth: 80,
+    alignItems: 'center',
+    flex: 1,
+    maxWidth: 110,
   },
-  resetButtonText: {
+  cameraButton: {
+    backgroundColor: '#4CAF50',
+  },
+  galleryButton: {
+    backgroundColor: '#2196F3',
+  },
+  identifyButton: {
+    backgroundColor: '#FF9800',
+  },
+  disabledButton: {
+    opacity: 0.4,
+  },
+  buttonText: {
     color: '#fff',
     fontWeight: '600',
+    fontSize: 12,
   },
   loadingContainer: {
     alignItems: 'center',
