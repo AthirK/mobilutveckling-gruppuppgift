@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import { useEffect, useState } from 'react';
 import {
-  StyleSheet,
-  View,
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
-  Platform
+  View
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
-import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 interface MushroomSuggestion {
   name: string;
@@ -31,10 +33,7 @@ interface MushroomCatch {
   timestamp: number;
 }
 
-const FALLBACK_LOCATION = Constants.expoConfig?.extra?.fallbackLocation || {
-  latitude: 56.8777,
-  longitude: 14.8094
-};
+const FALLBACK_LOCATION = Constants.expoConfig?.extra?.fallbackLocation;
 
 export default function TabTwoScreen() {
   const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
@@ -43,62 +42,51 @@ export default function TabTwoScreen() {
   const [suggestions, setSuggestions] = useState<MushroomSuggestion[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{latitude: number; longitude: number} | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
 
-  // Get location on mount
   useEffect(() => {
     getCurrentLocation();
   }, []);
 
   const getCurrentLocation = async () => {
     setLocationLoading(true);
-
     try {
       let coords;
-
       if (Platform.OS === 'web') {
-        // Web - use geolocation API
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
           if (!navigator.geolocation) {
             reject(new Error('Geolocation not supported'));
             return;
           }
-
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             timeout: 5000,
-            maximumAge: 300000 // Maximum age of 5 minutes
+            maximumAge: 300000
           });
         });
         coords = position.coords;
       } else {
-        // Mobile - use expo-location
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           throw new Error('Location permission denied');
         }
-
         const location = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
         });
         coords = location.coords;
       }
-
       setCurrentLocation({
         latitude: coords.latitude,
         longitude: coords.longitude,
       });
-
     } catch (error) {
       console.log('Location failed (using fallback): ', error);
-      // Use fallback location
       setCurrentLocation(FALLBACK_LOCATION);
     } finally {
       setLocationLoading(false);
     }
   };
 
-  //Check if using fallback location
   const isFallbackLocation = currentLocation?.latitude === FALLBACK_LOCATION.latitude &&
     currentLocation?.longitude === FALLBACK_LOCATION.longitude;
 
@@ -160,11 +148,22 @@ export default function TabTwoScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
+      const fileInfo = await FileSystem.getInfoAsync(imageUri);
+      if (!fileInfo.exists) {
+        console.log('File not found:', imageUri);
+        return;
+      }
+
+      const extension = imageUri.split('.').pop() || 'jpg';
+      const cachePath = FileSystem.cacheDirectory + `upload.${extension}`;
+      await FileSystem.copyAsync({ from: imageUri, to: cachePath });
 
       const formData = new FormData();
-      formData.append('images', blob);
+      formData.append('images', {
+        uri: cachePath,
+        name: `photo.${extension}`,
+        type: extension === 'png' ? 'image/png' : 'image/jpeg',
+      } as any);
 
       const apiResponse = await fetch('https://mushroom.kindwise.com/api/v1/identification', {
         method: 'POST',
@@ -174,14 +173,14 @@ export default function TabTwoScreen() {
         body: formData,
       });
 
-      if (!apiResponse.ok) throw new Error('API error');
+      if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
 
       const data = await apiResponse.json();
 
       if (data.result?.classification?.suggestions?.length > 0) {
-        const mushroomSuggestions = data.result.classification.suggestions.map((suggestion: any) => ({
-          name: suggestion.name,
-          probability: suggestion.probability,
+        const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
+          name: s.name,
+          probability: s.probability,
         }));
         setSuggestions(mushroomSuggestions);
       } else {
@@ -189,6 +188,7 @@ export default function TabTwoScreen() {
       }
     } catch (error) {
       console.log('Identification error:', error);
+      Alert.alert('Error', 'Could not identify the mushroom.');
     } finally {
       setLoading(false);
     }
@@ -197,7 +197,6 @@ export default function TabTwoScreen() {
   const addToCollection = async (mushroomName: string) => {
     if (!selectedImage) return;
 
-    // Use current location or get it if not available
     let locationToUse = currentLocation;
     if (!locationToUse) {
       await getCurrentLocation();
@@ -208,7 +207,7 @@ export default function TabTwoScreen() {
       id: Date.now().toString(),
       name: mushroomName,
       imageUri: selectedImage,
-      location: locationToUse!, // It cant be null here, due to fallback
+      location: locationToUse!,
       timestamp: Date.now(),
     };
 
@@ -219,7 +218,6 @@ export default function TabTwoScreen() {
       collection.push(newCatch);
       await AsyncStorage.setItem('mushroomCollection', JSON.stringify(collection));
 
-      // Show success message
       const locationInfo = isFallbackLocation
         ? ' (GPS not available)'
         : ' (with GPS location)';
@@ -227,7 +225,6 @@ export default function TabTwoScreen() {
       setSuccessMessage(`${mushroomName} added to your basket! 🍄${locationInfo}`);
       setShowSuccess(true);
 
-      // Hide after 2 seconds
       setTimeout(() => {
         setShowSuccess(false);
       }, 2000);
@@ -245,10 +242,9 @@ export default function TabTwoScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Mushroom Finder</Text>
+        {/*<Text style={styles.title}>Mushroom Finder</Text>*/}
         <Text style={styles.description}>Identify and collect mushrooms</Text>
 
-        {/* Location status */}
         <View style={styles.locationContainer}>
           {locationLoading ? (
             <Text style={styles.locationText}>📍 Getting location...</Text>
@@ -291,8 +287,8 @@ export default function TabTwoScreen() {
         <View style={styles.suggestionsContainer}>
           <Text style={styles.suggestionsTitle}>Top Matches:</Text>
           {suggestions.map((mushroom, index) => (
-            <Pressable
-              key={index}
+            <Pressable 
+              key={index} 
               style={styles.mushroomButton}
               onPress={() => addToCollection(mushroom.name)}
             >
@@ -306,7 +302,6 @@ export default function TabTwoScreen() {
         </View>
       )}
 
-      {/* Toast-like success message */}
       {showSuccess && (
         <View style={styles.successToast}>
           <Text style={styles.successText}>{successMessage}</Text>
