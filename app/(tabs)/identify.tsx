@@ -34,7 +34,7 @@ interface MushroomCatch {
 
 const FALLBACK_LOCATION = Constants.expoConfig?.extra?.fallbackLocation;
 
-export default function TabTwoScreen() {
+export default function IdentifyAndSave() {
   const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
