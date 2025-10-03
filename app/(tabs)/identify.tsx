@@ -3,6 +3,7 @@ import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import * as Crypto from 'expo-crypto';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -15,6 +16,7 @@ import {
   Text,
   View
 } from 'react-native';
+
 
 interface MushroomSuggestion {
   name: string;
@@ -43,6 +45,7 @@ export default function IdentifyAndSave() {
   const [successMessage, setSuccessMessage] = useState('');
   const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [imageId, setImageId] = useState<string | null>(null)
 
   useEffect(() => {
     getCurrentLocation();
@@ -105,41 +108,67 @@ export default function IdentifyAndSave() {
       });
 
       if (!result.canceled && result.assets[0].uri) {
-        setSelectedImage(result.assets[0].uri);
-        setSuggestions([]);
+        const originalUri = result.assets[0].uri;
+
+        // UUID for the image (will be used when saving to collection)
+        const id = Crypto.randomUUID();;
+         if (Platform.OS !== 'web') {
+        // Only copy image to app directory for native platforms, to avoid problem if the image is deleted from gallery
+        const extension = originalUri.split('.').pop() || 'jpg';
+        const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
+
+        await FileSystem.copyAsync({
+          from: originalUri,
+          to: newUri,
+        });
+
+        setSelectedImage(newUri);
+      } else {
+        // For web / testing
+        setSelectedImage(originalUri);
       }
-    } catch (error) {
-      console.log('Error picking image: ', error);
+      
+      setImageId(id); // Save UUID for all platforms
+      setSuggestions([]);
     }
-  };
+  } catch (error) {
+    console.log('Error picking image: ', error);
+  }
+};
 
   const takePhoto = async () => {
-  try {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Need access to camera');
-      return;
-    }
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Need access to camera');
+        return;
+      }
 
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0].uri) {
-      const originalUri = result.assets[0].uri;
-      
-      // Cppy image to app directory for native platforms, to avoid problem if the image is deleted from gallery
-      const extension = originalUri.split('.').pop() || 'jpg';
-      const newUri = FileSystem.documentDirectory + `photo-${Date.now()}.${extension}`;
-
-      await FileSystem.copyAsync({
-        from: originalUri,
-        to: newUri,
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
       });
 
-      setSelectedImage(newUri);
+      if (!result.canceled && result.assets[0].uri) {
+        const originalUri = result.assets[0].uri;
+        const id = Crypto.randomUUID();
+        if (Platform.OS !== 'web') {
+
+        const extension = originalUri.split('.').pop() || 'jpg';
+        const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
+
+        await FileSystem.copyAsync({
+          from: originalUri,
+          to: newUri,
+        });
+
+        setSelectedImage(newUri);
+      } else {
+        setSelectedImage(originalUri);
+      }
+      
+      setImageId(id);
       setSuggestions([]);
     }
   } catch (error) {
@@ -235,63 +264,48 @@ export default function IdentifyAndSave() {
     }
   };
 
- const addToCollection = async (
-    mushroomName: string,
-  ) => {
-    if (!selectedImage) return;
+  const addToCollection = async (mushroomName: string) => {
+  if (!selectedImage) return;
 
-    let locationToUse = currentLocation;
-    if (!locationToUse) {
-      await getCurrentLocation();
-      locationToUse = currentLocation;
-    }
+  let locationToUse = currentLocation;
+  if (!locationToUse) {
+    await getCurrentLocation();
+    locationToUse = currentLocation;
+  }
 
-    const id = Date.now().toString();
-    let savedImageUri = selectedImage;
 
-    try {
-      // Native: copy image to app directory
-      if (Platform.OS !== 'web') {
-        const extension = selectedImage.split('.').pop() || 'jpg';
-        const destPath = `${FileSystem.documentDirectory}mushroom-${id}.${extension}`;
+  const id = imageId || Crypto.randomUUID();
 
-        await FileSystem.copyAsync({
-          from: selectedImage,
-          to: destPath,
-        });
+  try {
+    const newCatch: MushroomCatch = {
+      id,
+      name: mushroomName,
+      imageUri: selectedImage,
+      location: locationToUse!,
+      timestamp: Date.now(),
+    };
 
-        savedImageUri = destPath;
-      }
+    const existingCollection = await AsyncStorage.getItem('mushroomCollection');
+    const collection = existingCollection ? JSON.parse(existingCollection) : [];
 
-      const newCatch: MushroomCatch = {
-        id,
-        name: mushroomName,
-        imageUri: savedImageUri,
-        location: locationToUse!,
-        timestamp: Date.now(),
-      };
+    collection.push(newCatch);
+    await AsyncStorage.setItem('mushroomCollection', JSON.stringify(collection));
 
-      const existingCollection = await AsyncStorage.getItem('mushroomCollection');
-      const collection = existingCollection ? JSON.parse(existingCollection) : [];
+    const locationInfo = isFallbackLocation
+      ? ' (GPS not available)'
+      : ' (with GPS location)';
 
-      collection.push(newCatch);
-      await AsyncStorage.setItem('mushroomCollection', JSON.stringify(collection));
+    setSuccessMessage(`${mushroomName} added to your basket! 🍄${locationInfo}`);
+    setShowSuccess(true);
 
-      const locationInfo = isFallbackLocation
-        ? ' (GPS not available)'
-        : ' (with GPS location)';
-
-      setSuccessMessage(`${mushroomName} added to your basket! 🍄${locationInfo}`);
-      setShowSuccess(true);
-
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 2000);
-    } catch (error) {
-      console.log('Error saving mushroom:', error);
-      Alert.alert('Error', 'Could not save mushroom to collection.');
-    }
-  };
+    setTimeout(() => {
+      setShowSuccess(false);
+    }, 2000);
+  } catch (error) {
+    console.log('Error saving mushroom:', error);
+    Alert.alert('Error', 'Could not save mushroom to collection.');
+  }
+};
 
   // Placeholder image
   const placeholderImage = require('../../assets/images/placeholder.jpg');
