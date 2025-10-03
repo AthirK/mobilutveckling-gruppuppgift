@@ -100,7 +100,7 @@ export default function TabTwoScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [1, 1],
         quality: 0.8,
       });
 
@@ -114,27 +114,38 @@ export default function TabTwoScreen() {
   };
 
   const takePhoto = async () => {
-    try {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission required', 'Need access to camera');
-        return;
-      }
+  try {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Need access to camera');
+      return;
+    }
 
-      const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0].uri) {
+      const originalUri = result.assets[0].uri;
+      
+      // Cppy image to app directory for native platforms, to avoid problem if the image is deleted from gallery
+      const extension = originalUri.split('.').pop() || 'jpg';
+      const newUri = FileSystem.documentDirectory + `photo-${Date.now()}.${extension}`;
+
+      await FileSystem.copyAsync({
+        from: originalUri,
+        to: newUri,
       });
 
-      if (!result.canceled && result.assets[0].uri) {
-        setSelectedImage(result.assets[0].uri);
-        setSuggestions([]);
-      }
-    } catch (error) {
-      console.log('Error taking photo: ', error);
+      setSelectedImage(newUri);
+      setSuggestions([]);
     }
-  };
+  } catch (error) {
+    console.log('Error taking photo: ', error);
+  }
+};
 
   const identifyMushroom = async (imageUri: string) => {
     if (!mushroomApiKey) {
