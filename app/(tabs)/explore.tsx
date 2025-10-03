@@ -265,7 +265,7 @@ export default function TabTwoScreen() {
   };
 
   // Placeholder image
-  const placeholderImage = require('../../assets/images/placeholder.png');
+  const placeholderImage = require('../../assets/images/placeholder.jpg');
 
   return (
     <ScrollView style={styles.container}>
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
     marginBottom: 20,
     flexWrap: 'wrap',
   },
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     minWidth: 80,
     alignItems: 'center',
     flex: 1,
-    maxWidth: 110,
+    maxWidth: 95,
   },
   cameraButton: {
     backgroundColor: '#4CAF50',
