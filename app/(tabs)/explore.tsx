@@ -224,7 +224,9 @@ export default function TabTwoScreen() {
     }
   };
 
-  const addToCollection = async (mushroomName: string) => {
+ const addToCollection = async (
+    mushroomName: string,
+  ) => {
     if (!selectedImage) return;
 
     let locationToUse = currentLocation;
@@ -233,15 +235,31 @@ export default function TabTwoScreen() {
       locationToUse = currentLocation;
     }
 
-    const newCatch: MushroomCatch = {
-      id: Date.now().toString(),
-      name: mushroomName,
-      imageUri: selectedImage,
-      location: locationToUse!,
-      timestamp: Date.now(),
-    };
+    const id = Date.now().toString();
+    let savedImageUri = selectedImage;
 
     try {
+      // Native: copy image to app directory
+      if (Platform.OS !== 'web') {
+        const extension = selectedImage.split('.').pop() || 'jpg';
+        const destPath = `${FileSystem.documentDirectory}mushroom-${id}.${extension}`;
+
+        await FileSystem.copyAsync({
+          from: selectedImage,
+          to: destPath,
+        });
+
+        savedImageUri = destPath;
+      }
+
+      const newCatch: MushroomCatch = {
+        id,
+        name: mushroomName,
+        imageUri: savedImageUri,
+        location: locationToUse!,
+        timestamp: Date.now(),
+      };
+
       const existingCollection = await AsyncStorage.getItem('mushroomCollection');
       const collection = existingCollection ? JSON.parse(existingCollection) : [];
 
@@ -258,9 +276,9 @@ export default function TabTwoScreen() {
       setTimeout(() => {
         setShowSuccess(false);
       }, 2000);
-
     } catch (error) {
-      console.log('Error saving to collection: ', error);
+      console.log('Error saving mushroom:', error);
+      Alert.alert('Error', 'Could not save mushroom to collection.');
     }
   };
 
