@@ -14,8 +14,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     mushroomApiKey: process.env.MUSHROOM_API_KEY, // From .env file
     fallbackLocation: { // From .env file
-      latitude: parseFloat(process.env.FALLBACK_LAT),
-      longitude: parseFloat(process.env.FALLBACK_LON),
+      latitude: parseFloat(process.env.FALLBACK_LAT ?? "0"),
+      longitude: parseFloat(process.env.FALLBACK_LON ?? "0"),
     }
   },
   ios: {
