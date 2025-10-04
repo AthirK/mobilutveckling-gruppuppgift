@@ -16,7 +16,7 @@ import {
   Text,
   View
 } from 'react-native';
-
+import { useNavigation } from 'expo-router';
 
 interface MushroomSuggestion {
   name: string;
@@ -37,6 +37,7 @@ interface MushroomCatch {
 const FALLBACK_LOCATION = Constants.expoConfig?.extra?.fallbackLocation;
 
 export default function IdentifyAndSave() {
+  const navigation = useNavigation();
   const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -112,29 +113,29 @@ export default function IdentifyAndSave() {
 
         // UUID for the image (will be used when saving to collection)
         const id = Crypto.randomUUID();;
-         if (Platform.OS !== 'web') {
-        // Only copy image to app directory for native platforms, to avoid problem if the image is deleted from gallery
-        const extension = originalUri.split('.').pop() || 'jpg';
-        const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
+        if (Platform.OS !== 'web') {
+          // Only copy image to app directory for native platforms, to avoid problem if the image is deleted from gallery
+          const extension = originalUri.split('.').pop() || 'jpg';
+          const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
 
-        await FileSystem.copyAsync({
-          from: originalUri,
-          to: newUri,
-        });
+          await FileSystem.copyAsync({
+            from: originalUri,
+            to: newUri,
+          });
 
-        setSelectedImage(newUri);
-      } else {
-        // For web / testing
-        setSelectedImage(originalUri);
+          setSelectedImage(newUri);
+        } else {
+          // For web / testing
+          setSelectedImage(originalUri);
+        }
+
+        setImageId(id); // Save UUID for all platforms
+        setSuggestions([]);
       }
-      
-      setImageId(id); // Save UUID for all platforms
-      setSuggestions([]);
+    } catch (error) {
+      console.log('Error picking image: ', error);
     }
-  } catch (error) {
-    console.log('Error picking image: ', error);
-  }
-};
+  };
 
   const takePhoto = async () => {
     try {
@@ -155,26 +156,26 @@ export default function IdentifyAndSave() {
         const id = Crypto.randomUUID();
         if (Platform.OS !== 'web') {
 
-        const extension = originalUri.split('.').pop() || 'jpg';
-        const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
+          const extension = originalUri.split('.').pop() || 'jpg';
+          const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
 
-        await FileSystem.copyAsync({
-          from: originalUri,
-          to: newUri,
-        });
+          await FileSystem.copyAsync({
+            from: originalUri,
+            to: newUri,
+          });
 
-        setSelectedImage(newUri);
-      } else {
-        setSelectedImage(originalUri);
+          setSelectedImage(newUri);
+        } else {
+          setSelectedImage(originalUri);
+        }
+
+        setImageId(id);
+        setSuggestions([]);
       }
-      
-      setImageId(id);
-      setSuggestions([]);
+    } catch (error) {
+      console.log('Error taking photo: ', error);
     }
-  } catch (error) {
-    console.log('Error taking photo: ', error);
-  }
-};
+  };
 
   const identifyMushroom = async (imageUri: string) => {
     if (!mushroomApiKey) {
@@ -265,129 +266,152 @@ export default function IdentifyAndSave() {
   };
 
   const addToCollection = async (mushroomName: string) => {
-  if (!selectedImage) return;
+    if (!selectedImage) return;
 
-  let locationToUse = currentLocation;
-  if (!locationToUse) {
-    await getCurrentLocation();
-    locationToUse = currentLocation;
-  }
+    let locationToUse = currentLocation;
+    if (!locationToUse) {
+      await getCurrentLocation();
+      locationToUse = currentLocation;
+    }
 
 
-  const id = imageId || Crypto.randomUUID();
+    const id = imageId || Crypto.randomUUID();
 
-  try {
-    const newCatch: MushroomCatch = {
-      id,
-      name: mushroomName,
-      imageUri: selectedImage,
-      location: locationToUse!,
-      timestamp: Date.now(),
-    };
+    try {
+      const newCatch: MushroomCatch = {
+        id,
+        name: mushroomName,
+        imageUri: selectedImage,
+        location: locationToUse!,
+        timestamp: Date.now(),
+      };
 
-    const existingCollection = await AsyncStorage.getItem('mushroomCollection');
-    const collection = existingCollection ? JSON.parse(existingCollection) : [];
+      const existingCollection = await AsyncStorage.getItem('mushroomCollection');
+      const collection = existingCollection ? JSON.parse(existingCollection) : [];
 
-    collection.push(newCatch);
-    await AsyncStorage.setItem('mushroomCollection', JSON.stringify(collection));
+      collection.push(newCatch);
+      await AsyncStorage.setItem('mushroomCollection', JSON.stringify(collection));
 
-    const locationInfo = isFallbackLocation
-      ? ' (GPS not available)'
-      : ' (with GPS location)';
+      const locationInfo = isFallbackLocation
+        ? ' (GPS not available)'
+        : ' (with GPS location)';
 
-    setSuccessMessage(`${mushroomName} added to your basket! 🍄${locationInfo}`);
-    setShowSuccess(true);
+      setSuccessMessage(`${mushroomName} added to your basket! 🍄${locationInfo}`);
+      setShowSuccess(true);
 
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 2000);
-  } catch (error) {
-    console.log('Error saving mushroom:', error);
-    Alert.alert('Error', 'Could not save mushroom to collection.');
-  }
-};
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2000);
+    } catch (error) {
+      console.log('Error saving mushroom:', error);
+      Alert.alert('Error', 'Could not save mushroom to collection.');
+    }
+  };
 
   // Placeholder image
   const placeholderImage = require('../../assets/images/placeholder.jpg');
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Identify and collect mushrooms</Text>
+    <View style={{ flex: 1 }}> {/* Extra View for wrapping toastMessage outside ScrollView, Full height container */}
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Identify and collect mushrooms</Text>
 
-        <View style={styles.locationContainer}>
-          {locationLoading ? (
-            <Text style={styles.locationText}>📍 Getting location...</Text>
-          ) : currentLocation ? (
-            <Text style={styles.locationText}>
-              📍 {isFallbackLocation
-                ? 'GPS position not available'
-                : `Location: ${currentLocation.latitude.toFixed(4)}, ${currentLocation.longitude.toFixed(4)}`}
-            </Text>
-          ) : null}
+          <View style={styles.locationContainer}>
+            {locationLoading ? (
+              <Text style={styles.locationText}>📍 Getting location...</Text>
+            ) : currentLocation ? (
+              <View style={styles.locationRow}> {/* Extra wrapper to control rendering of location */}
+                <Text style={styles.locationText}>📍 </Text>
+                <Text style={styles.locationText}>
+                  {isFallbackLocation
+                    ? 'GPS position not available'
+                    : `Location: ${currentLocation.latitude.toFixed(4)}, ${currentLocation.longitude.toFixed(4)}`}
+                </Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.imageContainer}>
-        <Image
-          source={selectedImage ? { uri: selectedImage } : placeholderImage}
-          style={styles.selectedImage}
-        />
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Pressable style={[styles.button, styles.cameraButton]} onPress={takePhoto}>
-          <Text style={styles.buttonText}>📸 Camera</Text>
-        </Pressable>
-        <Pressable style={[styles.button, styles.galleryButton]} onPress={pickImage}>
-          <Text style={styles.buttonText}>🖼️ Gallery</Text>
-        </Pressable>
-        <Pressable //Disable identify button if loading or no image, and change style for this
-          style={({ pressed }) => [
-            styles.button,
-            styles.identifyButton,
-            (loading || !selectedImage) && styles.disabledButton
-          ]}
-          onPress={() => selectedImage && identifyMushroom(selectedImage)}
-          disabled={loading || !selectedImage}
-        >
-          <Text style={styles.buttonText}>🔍 Identify</Text>
-        </Pressable>
-      </View>
-
-      {loading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4CAF50" />
-          <Text>Identifying...</Text>
+        <View style={styles.imageContainer}>
+          <Image
+            source={selectedImage ? { uri: selectedImage } : placeholderImage}
+            style={styles.selectedImage}
+          />
         </View>
-      )}
 
-      {suggestions.length > 0 && (
-        <View style={styles.suggestionsContainer}>
-          <Text style={styles.suggestionsTitle}>Top Matches:</Text>
-          {suggestions.map((mushroom, index) => (
-            <Pressable
-              key={index}
-              style={styles.mushroomButton}
-              onPress={() => addToCollection(mushroom.name)}
-            >
-              <Text style={styles.mushroomName}>{mushroom.name}</Text>
-              <Text style={styles.mushroomProbability}>
-                {Math.round(mushroom.probability * 100)}%
-              </Text>
-              <Text style={styles.basketIcon}>🧺</Text>
-            </Pressable>
-          ))}
+        <View style={styles.buttonContainer}>
+          <Pressable style={[styles.button, styles.cameraButton]} onPress={takePhoto}>
+            <Text style={styles.buttonText}>📸 Camera</Text>
+          </Pressable>
+          <Pressable style={[styles.button, styles.galleryButton]} onPress={pickImage}>
+            <Text style={styles.buttonText}>🖼️ Gallery</Text>
+          </Pressable>
+          <Pressable //Disable identify button if loading or no image, and change style for this
+            style={({ pressed }) => [
+              styles.button,
+              styles.identifyButton,
+              (loading || !selectedImage) && styles.disabledButton
+            ]}
+            onPress={() => selectedImage && identifyMushroom(selectedImage)}
+            disabled={loading || !selectedImage}
+          >
+            <Text style={styles.buttonText}>🔍 Identify</Text>
+          </Pressable>
         </View>
-      )}
 
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4CAF50" />
+            <Text>Identifying...</Text>
+          </View>
+        )}
+        {suggestions.length > 0 && (
+          <View style={styles.suggestionsContainer}>
+            <Text style={styles.suggestionsTitle}>Top Matches:</Text>
+            {suggestions.map((mushroom, index) => (
+              <View key={index} style={styles.mushroomItem}>
+                <View style={styles.mushroomInfo}>
+                  <Text style={styles.mushroomName}>{mushroom.name}</Text>
+                  <Text style={styles.mushroomProbability}>
+                    {Math.round(mushroom.probability * 100)}%
+                  </Text>
+                </View>
+
+                {/* Icons - clickable */}
+                <View style={styles.iconsContainer}>
+
+
+                  <Pressable
+                    style={styles.infoIcon}
+                    onPress={() => (navigation as any).navigate('info', {
+                      mushroomName: mushroom.name
+                    })}
+                  >
+                    <Text style={styles.infoIconText}>i</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.basketIcon}
+                    onPress={() => addToCollection(mushroom.name)}
+                  >
+                    <Text style={styles.basketIconText}>🧺</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Toast outside ScrollView - so it´s always visible  */}
       {showSuccess && (
         <View style={styles.successToast}>
           <Text style={styles.successText}>{successMessage}</Text>
         </View>
       )}
-    </ScrollView>
+    </View>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -408,6 +432,12 @@ const styles = StyleSheet.create({
   },
   locationContainer: {
     marginTop: 8,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   locationText: {
     fontSize: 12,
@@ -470,14 +500,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
   },
-  mushroomButton: {
+  mushroomItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#f5f5f5',
     padding: 16,
     borderRadius: 8,
     marginBottom: 8,
+  },
+  mushroomInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   mushroomName: {
     fontSize: 16,
@@ -487,10 +522,35 @@ const styles = StyleSheet.create({
   mushroomProbability: {
     fontSize: 14,
     color: '#666',
-    marginRight: 12,
+    marginRight: 18,
+  },
+
+  iconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   basketIcon: {
+    padding: 8,
+
+  },
+  basketIconText: {
     fontSize: 18,
+  },
+  infoIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 3,
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ translateY: 1 }], // To align better with basket icon
+  },
+  infoIconText: {
+    color: '#666',
+    fontWeight: 'bold',
+    fontSize: 12,
   },
   successToast: {
     position: 'absolute',
