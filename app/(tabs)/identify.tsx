@@ -16,7 +16,7 @@ import {
   Text,
   View
 } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 interface MushroomSuggestion {
   name: string;
@@ -37,7 +37,7 @@ interface MushroomCatch {
 const FALLBACK_LOCATION = Constants.expoConfig?.extra?.fallbackLocation;
 
 export default function IdentifyAndSave() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -312,7 +312,8 @@ export default function IdentifyAndSave() {
   const placeholderImage = require('../../assets/images/placeholder.jpg');
 
   return (
-    <View style={{ flex: 1 }}> {/* Extra View for wrapping toastMessage outside ScrollView, Full height container */}
+    <View style={{ flex: 1 }}>
+      {/* Extra View for wrapping toastMessage outside ScrollView, Full height container */}
       <ScrollView style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Identify and collect mushrooms</Text>
@@ -321,7 +322,7 @@ export default function IdentifyAndSave() {
             {locationLoading ? (
               <Text style={styles.locationText}>📍 Getting location...</Text>
             ) : currentLocation ? (
-              <View style={styles.locationRow}> {/* Extra wrapper to control rendering of location */}
+              <View style={styles.locationRow}>
                 <Text style={styles.locationText}>📍 </Text>
                 <Text style={styles.locationText}>
                   {isFallbackLocation
@@ -384,8 +385,9 @@ export default function IdentifyAndSave() {
 
                   <Pressable
                     style={styles.infoIcon}
-                    onPress={() => (navigation as any).navigate('info', {
-                      mushroomName: mushroom.name
+                    onPress={() => router.push({
+                      pathname: '/info',
+                      params: { mushroomName: mushroom.name }
                     })}
                   >
                     <Text style={styles.infoIconText}>i</Text>
