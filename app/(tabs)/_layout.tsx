@@ -28,7 +28,14 @@ export default function TabLayout() {
         name="identify"
         options={{
           title: 'Identify & Save',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass.circle.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="gallery"
+        options={{
+          title: 'Gallery',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="mushroom" color={color} />,
         }}
       />
     </Tabs>
