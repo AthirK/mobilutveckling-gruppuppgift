@@ -5,11 +5,13 @@ import { MushroomSuggestion } from '@/types/mushroom.types';
 interface MushroomSuggestionsProps {
     suggestions: MushroomSuggestion[];
     onAddToCollection: (mushroomName: string) => void;
+    imageUri?: string;
 }
 
 export const MushroomSuggestions = ({
     suggestions,
-    onAddToCollection
+    onAddToCollection,
+    imageUri
 }: MushroomSuggestionsProps) => {
     const router = useRouter();
 
@@ -34,7 +36,8 @@ export const MushroomSuggestions = ({
                                 pathname: '/info',
                                 params: {
                                     mushroomName: mushroom.name,
-                                    showBasket: 'true'  // Prop for showing basket icon in info screen
+                                    showBasket: 'true', // Prop for showing basket icon in info screen
+                                    imageUri: imageUri || '', // Prop for image from camera/gallery, needs to
                                 }
                             })}
                         >

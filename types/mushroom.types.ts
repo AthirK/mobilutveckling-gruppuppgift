@@ -1,6 +1,7 @@
 export interface MushroomSuggestion {
   name: string;
   probability: number;
+  imageUri?: string;
 }
 
 export interface MushroomCatch {

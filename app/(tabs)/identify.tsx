@@ -80,6 +80,7 @@ export default function IdentifyAndSave() {
           <MushroomSuggestions
             suggestions={suggestions}
             onAddToCollection={handleAddToCollection}
+            imageUri={selectedImage ?? undefined}
           />
         </IdentificationResults>
       </ScrollView>

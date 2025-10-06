@@ -1,11 +1,12 @@
-import { View, Text, Pressable, ScrollView, StyleSheet} from 'react-native';
-import { useNavigation, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function InfoScreen() {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
   const mushroomName = params.mushroomName as string;
   const showBasket = params.showBasket === 'true';
+  const imageUri = params.imageUri as string | undefined;
 
 
   return (
@@ -15,18 +16,26 @@ export default function InfoScreen() {
           <Text style={styles.backButtonText}>← Back</Text>
         </Pressable>
         <Text style={styles.title}>About {mushroomName}</Text>
-        
+
         {showBasket && (
           <Pressable style={styles.basketButton} onPress={null}>
             <Text style={styles.basketButtonText}>🧺</Text>
           </Pressable>
         )}
+
+
+        {imageUri && (
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: imageUri }} style={styles.image} />
+          </View>
+        )}
+
       </View>
-      
+
       <ScrollView style={styles.content}>
         <Text style={styles.infoText}>
-          Information about {mushroomName}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-          Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
+          Information about {mushroomName}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
           quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
         </Text>
       </ScrollView>
@@ -79,6 +88,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     fontWeight: '600',
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 16,
+  },
+
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   content: {
     flex: 1,
