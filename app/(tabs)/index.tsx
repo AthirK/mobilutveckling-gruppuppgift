@@ -7,7 +7,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 
+import { useGetLocation } from '../../hooks/use-get-location';
+import { useLocationStore } from '../../store/location-store';
+
 export default function HomeScreen() {
+
+  // Fetches and stores location globally
+  useGetLocation();
+  const location = useLocationStore((state) => state.location);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -21,6 +29,20 @@ export default function HomeScreen() {
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
+      
+      {/* Current location */}
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Your Location</ThemedText>
+        {location ? (
+          <ThemedText>
+            Latitude: {location.latitude.toFixed(5)}{'\n'}
+            Longitude: {location.longitude.toFixed(5)}
+          </ThemedText>
+        ) : (
+          <ThemedText>Getting location...</ThemedText>
+        )}
+      </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
@@ -36,6 +58,7 @@ export default function HomeScreen() {
           to open developer tools.
         </ThemedText>
       </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <Link href="/modal">
           <Link.Trigger>
@@ -59,11 +82,11 @@ export default function HomeScreen() {
             </Link.Menu>
           </Link.Menu>
         </Link>
-
         <ThemedText>
           {`Tap the Explore tab to learn more about what's included in this starter app.`}
         </ThemedText>
       </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
         <ThemedText>
