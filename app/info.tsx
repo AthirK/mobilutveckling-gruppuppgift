@@ -1,13 +1,16 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { MushroomDetails } from '@/components/identification/mushroomDetails';
 
 export default function InfoScreen() {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
-  const mushroomName = params.mushroomName as string;
-  const showBasket = params.showBasket === 'true';
-  const imageUri = params.imageUri as string | undefined;
 
+  const mushroomName = params?.mushroomName as string;
+  const showBasket = params?.showBasket === 'true';
+  const imageUri = params?.imageUri as string | undefined;
+  const accessToken = params?.accessToken as string | undefined;
+  console.log('InfoScreen accessToken:', accessToken);
 
   return (
     <View style={styles.fullScreenContainer}>
@@ -22,29 +25,21 @@ export default function InfoScreen() {
             <Text style={styles.basketButtonText}>🧺</Text>
           </Pressable>
         )}
-
-
-        {imageUri && (
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: imageUri }} style={styles.image} />
-          </View>
-        )}
-
       </View>
 
       <ScrollView style={styles.content}>
-        <Text style={styles.infoText}>
-          Information about {mushroomName}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-        </Text>
-      </ScrollView>
+        {imageUri && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: imageUri }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          </View>
+        )}
 
-      {/*{showSuccess && (
-        <View style={styles.successToast}>
-          <Text style={styles.successText}>{successMessage}</Text>
-        </View>
-      )}*/}
+        <MushroomDetails mushroomName={mushroomName} accessToken={accessToken} />
+      </ScrollView>
     </View>
   );
 }
@@ -57,15 +52,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
     paddingTop: 60,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     backgroundColor: '#fff',
   },
   backButton: {
     padding: 8,
-    marginRight: 16,
+    marginRight: 12,
   },
   backButtonText: {
     fontSize: 16,
@@ -73,56 +69,65 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
+    flex: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    flex: 1,
+    textAlign: 'center',
+    marginRight: 32, // extra space so title doesn’t get pushed by basket icon
   },
   basketButton: {
-    padding: 12,
-    backgroundColor: 'black',
+    backgroundColor: '#000',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    marginLeft: 8,
   },
   basketButtonText: {
-    fontSize: 18,
     color: '#fff',
+    fontSize: 18,
     fontWeight: '600',
-  },
-  imageContainer: {
-    alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 16,
-  },
-
-  image: {
-    width: 150,
-    height: 150,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
   },
   content: {
     flex: 1,
     padding: 16,
   },
-  infoText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#333',
-  },
-  successToast: {
-    position: 'absolute',
-    bottom: 10,
-    left: 20,
-    right: 20,
-    backgroundColor: '#4CAF50',
-    padding: 16,
-    borderRadius: 8,
+  imageContainer: {
     alignItems: 'center',
+    marginBottom: 20,
   },
-  successText: {
-    color: '#fff',
-    fontWeight: '600',
+  image: {
+    width: 180,
+    height: 180,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
 });
+
+
+
+
+/*{showSuccess && (
+        <View style={styles.successToast}>
+          <Text style={styles.successText}>{successMessage}</Text>
+        </View>
+      )}
+        
+      
+        {showBasket && (
+          <Pressable style={styles.basketButton} onPress={null}>
+            <Text style={styles.basketButtonText}>🧺</Text>
+          </Pressable>
+        )}
+
+
+        {imageUri && (
+          <View style={styles.imageContainer}>
+             <Image
+            source={{ uri: imageUri }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+          </View>
+        )}
+      */

@@ -19,10 +19,16 @@ export const mushroomApiService = {
         const blob = await response.blob();
         formData.append('images', blob, 'photo.jpg');
       } 
-      // For native - you'll need to handle file system differently
+      
       else {
-        // Native implementation would go here
-        throw new Error('Native image upload not implemented');
+        // Native (Android/iOS)
+        const extension = imageUri.split('.').pop() || 'jpg';
+      
+        formData.append('images', {
+          uri: imageUri,
+          name: `photo.${extension}`,
+          type: extension === 'png' ? 'image/png' : 'image/jpeg',
+        } as any);
       }
 
       const apiResponse = await fetch(API_URL, {

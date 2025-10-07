@@ -1,13 +1,15 @@
-import { useState } from 'react';
 import { MushroomSuggestion } from '@/types/mushroom.types';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
+import { useState } from 'react';
+import { Platform } from 'react-native';
 
 const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
 
 export const useMushroomIdentification = () => {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<MushroomSuggestion[]>([]);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   const identifyMushroom = async (imageUri: string) => {
     if (!mushroomApiKey) {
@@ -18,7 +20,7 @@ export const useMushroomIdentification = () => {
     setLoading(true);
 
     try {
-      if (typeof window !== 'undefined') {
+      if (Platform.OS === 'web') {
         // For web
         const response = await fetch(imageUri);
         const blob = await response.blob();
@@ -37,6 +39,11 @@ export const useMushroomIdentification = () => {
         if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
 
         const data = await apiResponse.json();
+
+        if (data.access_token) {
+          setAccessToken(data.access_token);
+          console.log('New accesstoken', accessToken);
+        }
 
         if (data.result?.classification?.suggestions?.length > 0) {
           const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
@@ -78,6 +85,10 @@ export const useMushroomIdentification = () => {
 
         const data = await apiResponse.json();
 
+          if (data.access_token) {
+        setAccessToken(data.access_token);
+      }
+
         if (data.result?.classification?.suggestions?.length > 0) {
           const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
             name: s.name,
@@ -90,7 +101,7 @@ export const useMushroomIdentification = () => {
       }
     } catch (error) {
       console.log('Identification error:', error);
-      throw new Error('Could not identify the mushroom');
+      alert('Could not identify the mushroom. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -103,6 +114,7 @@ export const useMushroomIdentification = () => {
   return {
     loading,
     suggestions,
+    accessToken,
     identifyMushroom,
     clearResults
   };

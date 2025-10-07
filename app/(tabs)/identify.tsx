@@ -15,7 +15,7 @@ const placeholderImage = require('../../assets/images/placeholder.jpg');
 export default function IdentifyAndSave() {
   const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
   const { selectedImage, imageId, pickImage, takePhoto, clearImage } = useImagePicker();
-  const { loading, suggestions, identifyMushroom, clearResults } = useMushroomIdentification();
+  const { loading, suggestions, accessToken, identifyMushroom, clearResults } = useMushroomIdentification();
   const { showSuccess, successMessage, addToCollection } = useCollection();
 
   const handlePickImage = async () => {
@@ -81,6 +81,7 @@ export default function IdentifyAndSave() {
             suggestions={suggestions}
             onAddToCollection={handleAddToCollection}
             imageUri={selectedImage ?? undefined}
+            accessToken={accessToken ?? undefined}
           />
         </IdentificationResults>
       </ScrollView>
