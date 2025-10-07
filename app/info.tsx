@@ -6,11 +6,10 @@ export default function InfoScreen() {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
 
+  const mushroomId = params?.mushroomId as string;
   const mushroomName = params?.mushroomName as string;
   const showBasket = params?.showBasket === 'true';
   const imageUri = params?.imageUri as string | undefined;
-  const accessToken = params?.accessToken as string | undefined;
-  console.log('InfoScreen accessToken:', accessToken);
 
   return (
     <View style={styles.fullScreenContainer}>
@@ -38,11 +37,16 @@ export default function InfoScreen() {
           </View>
         )}
 
-        <MushroomDetails mushroomName={mushroomName} accessToken={accessToken} />
+        {mushroomId ? (
+          <MushroomDetails mushroomId={mushroomId} />
+        ) : (
+          <Text>Missing mushroom ID</Text>
+        )}
       </ScrollView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   fullScreenContainer: {

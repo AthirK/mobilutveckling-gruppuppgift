@@ -1,45 +1,28 @@
 import { useEffect, useState } from 'react';
-import Constants from 'expo-constants';
+import { MushroomDetailsType } from '@/types/mushroom.types';
 
-export const useMushroomDetails = (accessToken?: string) => {
-  const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
-  const [loading, setLoading] = useState(true);
-  const [description, setDescription] = useState<string | null>(null);
-  const [wikipediaUrl, setWikipediaUrl] = useState<string | null>(null);
-  const [error, setError] = useState(false);
+export function useMushroomDetails(mushroomId: string) {
+  const [details, setDetails] = useState<MushroomDetailsType | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchDetails = async () => {
-      if (!accessToken || !mushroomApiKey) {
-        setLoading(false);
-        return;
-      }
+    if (!mushroomId) return;
 
-      try {
-        const res = await fetch(
-          `https://mushroom.kindwise.com/api/v1/identification/${accessToken}?details=description,wikipedia_url&language=en`,
-          {
-            headers: {
-              'Api-Key': mushroomApiKey,
-            },
-          }
-        );
+    setLoading(true);
+    setError(null);
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    fetch(`https://mushroom.kindwise.com/api/v1/mushrooms/${mushroomId}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch details: ${response.status}`);
+        }
+        const data = await response.json();
+        setDetails(data);
+      })
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+  }, [mushroomId]);
 
-        const data = await res.json();
-        setDescription(data.description || null);
-        setWikipediaUrl(data.wikipedia_url || null);
-      } catch (err) {
-        console.error('Error fetching mushroom info:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDetails();
-  }, [accessToken, mushroomApiKey]);
-
-  return { loading, description, wikipediaUrl, error };
-};
+  return { details, loading, error };
+}
