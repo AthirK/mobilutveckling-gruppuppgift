@@ -1,46 +1,35 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Fonts } from '@/constants/theme';
+import { ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GalleryScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Picked mushrooms!</ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText>
-          Here a <ThemedText type="defaultSemiBold">gallery</ThemedText> of picked mushrooms is displayed.
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView>
+      <ThemedView style={styles.content}>
+        <ThemedText
+          type="title"
+          style={[styles.title,{
+            fontFamily: Fonts.rounded, // Ändra till något custom?
+          }]}>
+          Mushrooms Gallery
         </ThemedText>
       </ThemedView>
-    </ParallaxScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  content: {
+    padding: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  title: {
+    textAlign: 'center',
+  }
 });
