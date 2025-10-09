@@ -1,14 +1,15 @@
-// hooks/useMushroomIdentification.ts
 import { useState } from 'react';
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import { mushroomApiService } from '@/services/mushroomApiService';
-import { MushroomSuggestion } from '@/types/mushroom.types';
+//import { MushroomSuggestion } from '@/types/mushroom.types';
+import { useMushroomStore } from '@/stores/useMushroomStore';
 
 export const useMushroomIdentification = () => {
-  const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<MushroomSuggestion[]>([]);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+ const [loading, setLoading] = useState(false);
+  const setSuggestions = useMushroomStore((state) => state.setSuggestions);
+  const setAccessToken = useMushroomStore((state) => state.setAccessToken);
+  const clearStore = useMushroomStore((state) => state.clear);
 
   const identifyMushroom = async (imageUri: string) => {
     setLoading(true);
@@ -44,9 +45,11 @@ export const useMushroomIdentification = () => {
   };
 
   const clearResults = () => {
-    setSuggestions([]);
-    setAccessToken(null);
+  clearStore();
   };
+
+  const suggestions = useMushroomStore((state) => state.suggestions);
+  const accessToken = useMushroomStore((state) => state.accessToken);
 
   return {
     loading,

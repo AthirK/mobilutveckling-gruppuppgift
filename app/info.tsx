@@ -1,15 +1,63 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { MushroomDetails } from '@/components/identification/mushroomDetails';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, Alert } from 'react-native';
+import { useMushroomStore } from '@/stores/useMushroomStore';
+import { useCollection } from '@/hooks/use-collection';
+import { useLocation } from '@/hooks/use-location';
+import { useImagePicker } from '@/hooks/use-image-picker';
 
 export default function InfoScreen() {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
 
+  const { addToCollection, showSuccess, successMessage } = useCollection();
+  const { currentLocation, isFallbackLocation } = useLocation();
+  const { imageId } = useImagePicker();
+
   const mushroomId = params?.mushroomId as string;
   const mushroomName = params?.mushroomName as string;
   const showBasket = params?.showBasket === 'true';
   const imageUri = params?.imageUri as string | undefined;
+
+  const { suggestions } = useMushroomStore();
+  const mushroom = suggestions.find((s) => s.id === mushroomId);
+
+  console.log('InfoScreen params:', {
+  imageUri,
+  imageId,
+  mushroomId,
+  mushroomName,
+});
+
+
+  const handleAddToCollection = async () => {
+    if (!imageUri || !currentLocation) return;
+
+    try {
+      await addToCollection(
+        mushroomName,
+        imageUri,
+        currentLocation,
+        imageId || '',
+        isFallbackLocation
+      );
+    } catch (error) {
+      console.error('Save to collection failed:', error);
+      Alert.alert(
+        'Error',
+        'An error occurred - the mushroom could not be saved. Please try again!'
+      );
+    }
+  };
+
+  if (!mushroom) {
+    return (
+      <View style={styles.fullScreenContainer}>
+        <Text style={{ padding: 20 }}>
+          No mushroom data found. Please try again.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.fullScreenContainer}>
@@ -17,36 +65,71 @@ export default function InfoScreen() {
         <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </Pressable>
-        <Text style={styles.title}>About {mushroomName}</Text>
+        <Text style={styles.title}>About {mushroom.name}</Text>
 
         {showBasket && (
-          <Pressable style={styles.basketButton} onPress={null}>
+          <Pressable style={styles.basketButton} onPress={handleAddToCollection}>
             <Text style={styles.basketButtonText}>🧺</Text>
           </Pressable>
         )}
       </View>
 
       <ScrollView style={styles.content}>
+        {/* User Image */}
         {imageUri && (
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: imageUri }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-          </View>
+          <>
+            <Text style={styles.sectionTitle}>Your Photo:</Text>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: imageUri }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            </View>
+          </>
         )}
 
-        {mushroomId ? (
-          <MushroomDetails mushroomId={mushroomId} />
-        ) : (
-          <Text>Missing mushroom ID</Text>
+        {/* API Image */}
+        {mushroom.image && (
+          <>
+            <Text style={styles.sectionTitle}>Reference Image:</Text>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: mushroom.image }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            </View>
+          </>
+        )}
+
+        <Text style={styles.sectionTitle}>Common Names:</Text>
+        <Text style={styles.text}>
+          {mushroom.commonNames?.join(', ') || 'No common names available'}
+        </Text>
+
+        <Text style={styles.sectionTitle}>Edibility:</Text>
+        <Text style={styles.text}>{mushroom.edibility || 'Unknown'}</Text>
+
+        <Text style={styles.sectionTitle}>Description:</Text>
+        <Text style={styles.text}>{mushroom.description || 'No description available'}</Text>
+
+        {mushroom.url && (
+          <>
+            <Text style={styles.sectionTitle}>More Info:</Text>
+            <Text style={[styles.text, { color: 'blue' }]}>{mushroom.url}</Text>
+          </>
         )}
       </ScrollView>
+
+      {showSuccess && (
+        <View style={styles.toast}>
+          <Text style={styles.toastText}>{successMessage}</Text>
+        </View>
+      )}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   fullScreenContainer: {
@@ -78,7 +161,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
-    marginRight: 32, // extra space so title doesn’t get pushed by basket icon
+    marginRight: 32,
   },
   basketButton: {
     backgroundColor: '#000',
@@ -98,6 +181,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 8,
   },
   image: {
     width: 180,
@@ -106,32 +190,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
   },
+  sectionTitle: {
+    marginTop: 16,
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#444',
+  },
+  text: {
+    marginTop: 4,
+    fontSize: 14,
+    color: '#333',
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 24,
+    left: 24,
+    right: 24,
+    backgroundColor: '#4CAF50',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  toastText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
 });
-
-
-
-
-/*{showSuccess && (
-        <View style={styles.successToast}>
-          <Text style={styles.successText}>{successMessage}</Text>
-        </View>
-      )}
-        
-      
-        {showBasket && (
-          <Pressable style={styles.basketButton} onPress={null}>
-            <Text style={styles.basketButtonText}>🧺</Text>
-          </Pressable>
-        )}
-
-
-        {imageUri && (
-          <View style={styles.imageContainer}>
-             <Image
-            source={{ uri: imageUri }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-          </View>
-        )}
-      */

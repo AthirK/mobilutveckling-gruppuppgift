@@ -4,6 +4,11 @@ export interface MushroomSuggestion {
   probability: number;
   imageUri?: string;
   accessToken?: string; //Added for mushroom info screen to fetch detailed info or future use
+  commonNames?: string[];
+  edibility?: string | null;
+  url?: string | null;
+  description?: string | null;
+  image?: string | null;
 }
 
 export interface MushroomCatch {
@@ -15,10 +20,4 @@ export interface MushroomCatch {
     longitude: number;
   };
   timestamp: number;
-}
-
-export interface MushroomDetailsType {
-  id: string;
-  name: string;
-  description: string;
 }

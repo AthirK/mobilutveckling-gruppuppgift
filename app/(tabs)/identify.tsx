@@ -1,22 +1,26 @@
-import { View, ScrollView, Text, StyleSheet, Alert } from 'react-native';
-import { useLocation } from '@/hooks/use-location';
-import { useImagePicker } from '@/hooks/use-image-picker';
-import { useMushroomIdentification } from '@/hooks/use-mushroom-identification';
-import { useCollection } from '@/hooks/use-collection';
-import { LocationDisplay } from '@/components/location/locationDisplay';
-import { MushroomImage } from '@/components/identification/mushroomImage';
-import { ImagePicker } from '@/components/identification/imagePicker';
 import { IdentificationResults } from '@/components/identification/identificationResults';
+import { ImagePicker } from '@/components/identification/imagePicker';
+import { MushroomImage } from '@/components/identification/mushroomImage';
 import { MushroomSuggestions } from '@/components/identification/mushroomSuggestions';
+import { LocationDisplay } from '@/components/location/locationDisplay';
 import { SuccessToast } from '@/components/ui/successToast';
+import { useCollection } from '@/hooks/use-collection';
+import { useImagePicker } from '@/hooks/use-image-picker';
+import { useLocation } from '@/hooks/use-location';
+import { useMushroomIdentification } from '@/hooks/use-mushroom-identification';
+import { useMushroomStore } from '@/stores/useMushroomStore';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+
 
 const placeholderImage = require('../../assets/images/placeholder.jpg');
 
 export default function IdentifyAndSave() {
   const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
   const { selectedImage, imageId, pickImage, takePhoto, clearImage } = useImagePicker();
-  const { loading, suggestions, accessToken, identifyMushroom, clearResults } = useMushroomIdentification();
+   const { loading, identifyMushroom, clearResults } = useMushroomIdentification();
   const { showSuccess, successMessage, addToCollection } = useCollection();
+
+  const suggestions = useMushroomStore((state) => state.suggestions);
 
   const handlePickImage = async () => {
     await pickImage();
@@ -80,8 +84,7 @@ export default function IdentifyAndSave() {
           <MushroomSuggestions
             suggestions={suggestions}
             onAddToCollection={handleAddToCollection}
-            imageUri={selectedImage ?? undefined}
-            accessToken={accessToken ?? undefined}
+              imageUri={selectedImage ?? undefined}
           />
         </IdentificationResults>
       </ScrollView>
