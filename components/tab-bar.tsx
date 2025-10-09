@@ -1,9 +1,11 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   return (
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
     <View style={styles.tabbar}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
@@ -49,13 +51,18 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
         );
       })}
     </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+    safeArea: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+    },
   tabbar: {
-    position: 'absolute',
-    bottom: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
