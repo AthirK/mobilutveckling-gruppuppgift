@@ -10,17 +10,17 @@ import { useLocation } from '@/hooks/use-location';
 import { useMushroomIdentification } from '@/hooks/use-mushroom-identification';
 import { useMushroomStore } from '@/stores/useMushroomStore';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const placeholderImage = require('../../assets/images/placeholder.jpg');
 
 export default function IdentifyAndSave() {
   const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
   const { selectedImage, imageId, pickImage, takePhoto, clearImage } = useImagePicker();
-   const { loading, identifyMushroom, clearResults } = useMushroomIdentification();
+  const { loading, identifyMushroom, clearResults } = useMushroomIdentification();
   const { showSuccess, successMessage, addToCollection } = useCollection();
-
   const suggestions = useMushroomStore((state) => state.suggestions);
+  const insets = useSafeAreaInsets();
 
   const handlePickImage = async () => {
     await pickImage();
@@ -56,7 +56,9 @@ export default function IdentifyAndSave() {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 10 }}
+      >
         <View style={styles.header}>
           <Text style={styles.title}>Identify and collect mushrooms</Text>
           <LocationDisplay
@@ -84,7 +86,7 @@ export default function IdentifyAndSave() {
           <MushroomSuggestions
             suggestions={suggestions}
             onAddToCollection={handleAddToCollection}
-              imageUri={selectedImage ?? undefined}
+            imageUri={selectedImage ?? undefined}
           />
         </IdentificationResults>
       </ScrollView>
@@ -101,11 +103,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 30,
     padding: 16,
   },
   header: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 30,
     marginBottom: 20,
   },
   title: {

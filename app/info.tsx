@@ -1,13 +1,26 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+  Linking,
+  Alert,
+} from 'react-native';
+
 import { useMushroomStore } from '@/stores/useMushroomStore';
 import { useCollection } from '@/hooks/use-collection';
 import { useLocation } from '@/hooks/use-location';
 import { useImagePicker } from '@/hooks/use-image-picker';
+import { SuccessToast } from '@/components/ui/successToast';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function InfoScreen() {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
   const { addToCollection, showSuccess, successMessage } = useCollection();
   const { currentLocation, isFallbackLocation } = useLocation();
@@ -20,14 +33,6 @@ export default function InfoScreen() {
 
   const { suggestions } = useMushroomStore();
   const mushroom = suggestions.find((s) => s.id === mushroomId);
-
-  console.log('InfoScreen params:', {
-  imageUri,
-  imageId,
-  mushroomId,
-  mushroomName,
-});
-
 
   const handleAddToCollection = async () => {
     if (!imageUri || !currentLocation) return;
@@ -49,170 +54,219 @@ export default function InfoScreen() {
     }
   };
 
+  const handleOpenWiki = () => {
+    if (mushroom?.url) {
+      Linking.openURL(mushroom.url);
+    }
+  };
+
   if (!mushroom) {
     return (
-      <View style={styles.fullScreenContainer}>
-        <Text style={{ padding: 20 }}>
-          No mushroom data found. Please try again.
-        </Text>
+      <View style={styles.fullScreen}>
+        <Text style={{ padding: 20 }}>No mushroom data found. Please try again.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.fullScreenContainer}>
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </Pressable>
-        <Text style={styles.title}>About {mushroom.name}</Text>
-
-        {showBasket && (
-          <Pressable style={styles.basketButton} onPress={handleAddToCollection}>
-            <Text style={styles.basketButtonText}>🧺</Text>
-          </Pressable>
-        )}
-      </View>
-
-      <ScrollView style={styles.content}>
-        {/* User Image */}
-        {imageUri && (
-          <>
-            <Text style={styles.sectionTitle}>Your Photo:</Text>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: imageUri }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </View>
-          </>
-        )}
-
-        {/* API Image */}
-        {mushroom.image && (
-          <>
-            <Text style={styles.sectionTitle}>Reference Image:</Text>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: mushroom.image }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </View>
-          </>
-        )}
+    <View style={styles.fullScreen}>
+      <ScrollView
+        style={styles.container}
+  contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>About {mushroom.name}</Text>
+        </View>
 
         <Text style={styles.sectionTitle}>Common Names:</Text>
-        <Text style={styles.text}>
-          {mushroom.commonNames?.join(', ') || 'No common names available'}
-        </Text>
+        <Text style={styles.text}>{mushroom.commonNames?.join(', ') || 'No common names available'}</Text>
+
+        <Text style={styles.sectionTitle}>Description:</Text>
+        {(mushroom.description || 'No description available')
+  .split('\n')
+  .map((para, index) => (
+    <Text key={index} style={styles.text}>
+      {para.trim()}
+    </Text>
+))}
 
         <Text style={styles.sectionTitle}>Edibility:</Text>
         <Text style={styles.text}>{mushroom.edibility || 'Unknown'}</Text>
 
-        <Text style={styles.sectionTitle}>Description:</Text>
-        <Text style={styles.text}>{mushroom.description || 'No description available'}</Text>
-
         {mushroom.url && (
           <>
             <Text style={styles.sectionTitle}>More Info:</Text>
-            <Text style={[styles.text, { color: 'blue' }]}>{mushroom.url}</Text>
+            <Pressable onPress={handleOpenWiki}>
+              <Text style={styles.linkText}>{mushroom.url}</Text>
+            </Pressable>
           </>
         )}
+        <View style={styles.imageContainer}>
+          {mushroom.image && (
+            <>
+              <Text style={styles.sectionTitle}>Reference Image:</Text>
+
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={{ uri: mushroom.image }}
+                  style={styles.imageApi}
+                  resizeMode="cover"
+                />
+              </View>
+
+            </>
+          )}
+          {imageUri && (
+            <>
+              <Text style={styles.sectionTitle}>Your Photo:</Text>
+              <Image
+                source={{ uri: imageUri }}
+                style={styles.imageUser}
+                resizeMode="cover"
+              />
+            </>
+          )}
+        </View>
+
       </ScrollView>
 
-      {showSuccess && (
-        <View style={styles.toast}>
-          <Text style={styles.toastText}>{successMessage}</Text>
-        </View>
-      )}
+      <View style={styles.footer}>
+  <Pressable style={[styles.footerButton, styles.footerButtonBack]} onPress={() => navigation.goBack()}>
+    <Text style={styles.footerButtonText}>⬅ Go back</Text>
+  </Pressable>
+
+  {mushroom.url && (
+    <Pressable style={[styles.footerButton, styles.footerButtonWiki]} onPress={handleOpenWiki}>
+      <Text style={styles.footerButtonText}>Wikipedia</Text>
+    </Pressable>
+  )}
+
+  {showBasket && (
+    <Pressable
+      onPress={handleAddToCollection}
+      style={[
+        styles.footerButton,
+        styles.footerButtonPick,
+        showSuccess && styles.footerButtonSuccess,
+      ]}
+    >
+      <Text style={styles.footerButtonText}>Pick 🧺</Text>
+    </Pressable>
+  )}
+</View>
+
+      <SuccessToast visible={showSuccess} message={successMessage} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  fullScreenContainer: {
+  fullScreen: {
     flex: 1,
+    paddingTop: 30,
     backgroundColor: '#fff',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    backgroundColor: '#fff',
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 12,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '500',
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginRight: 32,
-  },
-  basketButton: {
-    backgroundColor: '#000',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  basketButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  content: {
+  container: {
     flex: 1,
     padding: 16,
   },
-  imageContainer: {
+  header: {
     alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 8,
+    marginTop: 20,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    paddingBottom: 10,
   },
-  image: {
-    width: 180,
-    height: 180,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#666',
   },
   sectionTitle: {
     marginTop: 16,
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
     color: '#444',
   },
-  text: {
+text: {
+  marginTop: 8,
+  fontSize: 14,
+  color: '#333',
+  lineHeight: 22,
+},
+  linkText: {
     marginTop: 4,
     fontSize: 14,
-    color: '#333',
+    color: '#007AFF',
+    textDecorationLine: 'underline',
   },
-  toast: {
-    position: 'absolute',
-    bottom: 24,
-    left: 24,
-    right: 24,
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
+  imageUser: {
+    width: 300,
+    height: 300,
+    borderRadius: 12,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  imageWrapper: {
+    position: 'relative',
+  },
+  imageApi: {
+    width: 300,
+    height: 300,
+    borderRadius: 12,
+    marginTop: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  imageContainer: {
     alignItems: 'center',
+    marginBottom: 10,
   },
-  toastText: {
-    color: 'white',
-    fontWeight: 'bold',
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: 60,
+    paddingTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
   },
+footerButton: {
+  padding: 12,
+  borderRadius: 8,
+  minWidth: 80,
+  alignItems: 'center',
+  flex: 1,
+  maxWidth: 95,
+},
+
+footerButtonBack: {
+  backgroundColor: '#4CAF50',
+},
+
+footerButtonWiki: {
+  backgroundColor: '#FFA500',
+},
+
+footerButtonPick: {
+  backgroundColor: '#007AFF',
+},
+
+footerButtonSuccess: {
+  backgroundColor: '#4CAF50',
+},
+
+footerButtonText: {
+  color: '#fff',
+  fontWeight: '600',
+  fontSize: 14,
+},
 });

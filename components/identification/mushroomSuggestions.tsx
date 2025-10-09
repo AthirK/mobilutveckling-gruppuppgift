@@ -91,6 +91,7 @@ console.log('imageUri in MushroomSuggestions:', imageUri);
 const styles = StyleSheet.create({
     suggestionsContainer: {
         marginTop: 20,
+        marginBottom: 30,
     },
     suggestionsTitle: {
         fontSize: 18,

@@ -90,7 +90,7 @@ export const mushroomApiService = {
         name: s.name,
         probability: s.probability,
         accessToken,
-        commonNames: matchingDetail?.common_names || [],
+        commonNames: matchingDetail?.details?.common_names || [],
         edibility: matchingDetail?.details?.edibility || null,
         url: matchingDetail?.details?.url || null,
         description: matchingDetail?.details?.description?.value || null,
