@@ -23,11 +23,11 @@ export function ReadMoreBtn() {
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: '#e75b24ff',
+        backgroundColor: '#b4603eff',
         padding: 12,
         borderRadius: 20,
         alignSelf: 'center',
-        paddingHorizontal: 24,
+        paddingHorizontal: 18,
     },
     buttonText: {
         color: 'white',
