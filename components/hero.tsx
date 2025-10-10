@@ -14,11 +14,12 @@ export function Hero() {
 const styles = StyleSheet.create({
     heroContainer: {
         backgroundColor: '#873414',
-        padding: 5,
+        padding: 8,
+        paddingHorizontal: 20,
     },
     heroText1: {
         color: '#ffffffff',
-        fontSize: 30
+        fontSize: 25
     },
     heroText2: {
         color: '#ffffffff',
