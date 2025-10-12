@@ -18,7 +18,8 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
-   'magnifyingglass.circle.fill': 'image-search', //For mushroom search
+  'magnifyingglass.circle.fill': 'image-search',  //For mushroom search
+  'location.circle.fill': 'location-on'
 } as IconMapping;
 
 /**

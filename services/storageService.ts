@@ -14,5 +14,35 @@ export const storageService = {
       console.log('Error saving to collection:', error);
       throw new Error('Could not save mushroom to collection');
     }
+  },
+
+  async getCollection(): Promise<MushroomCatch[]> {
+    try {
+      const collection = await AsyncStorage.getItem(COLLECTION_KEY);
+      return collection ? JSON.parse(collection) : [];
+    } catch (error) {
+      console.log('Error loading collection:', error);
+      return [];
+    }
+  },
+
+  async removeFromCollection(id: string): Promise<void> {
+    try {
+      const collection = await this.getCollection();
+      const filteredCollection = collection.filter(item => item.id !== id);
+      await AsyncStorage.setItem(COLLECTION_KEY, JSON.stringify(filteredCollection));
+    } catch (error) {
+      console.log('Error removing from collection:', error);
+      throw new Error('Could not remove mushroom from collection');
+    }
+  },
+
+  async clearCollection(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(COLLECTION_KEY);
+    } catch (error) {
+      console.log('Error clearing collection:', error);
+      throw new Error('Could not clear collection');
+    }
   }
 };

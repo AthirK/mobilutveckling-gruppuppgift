@@ -20,4 +20,5 @@ export interface MushroomCatch {
     longitude: number;
   };
   timestamp: number;
+  isFallbackLocation?: boolean; 
 }
