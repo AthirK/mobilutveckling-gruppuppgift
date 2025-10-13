@@ -1,4 +1,4 @@
-import { Modal, View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MushroomCatch } from '@/types/mushroom.types';
 import { LocationDisplay } from '@/components/location/locationDisplay';
 
@@ -6,14 +6,15 @@ interface MushroomFindModalProps {
   visible: boolean;
   mushroom: MushroomCatch | null;
   onClose: () => void;
+  onDelete: (id: string) => void;
 }
 
-export const MushroomFindModal = ({ visible, mushroom, onClose }: MushroomFindModalProps) => {
+export const MushroomFindModal = ({ visible, mushroom, onClose, onDelete }: MushroomFindModalProps) => {
   if (!mushroom) return null;
 
-  const formattedDateTime = `${new Date(mushroom.timestamp).toLocaleDateString('sv-SE')}, ${new Date(mushroom.timestamp).toLocaleTimeString('sv-SE', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  const formattedDateTime = `${new Date(mushroom.timestamp).toLocaleDateString('sv-SE')}, ${new Date(mushroom.timestamp).toLocaleTimeString('sv-SE', {
+    hour: '2-digit',
+    minute: '2-digit'
   })}`;
 
   return (
@@ -26,17 +27,17 @@ export const MushroomFindModal = ({ visible, mushroom, onClose }: MushroomFindMo
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>{mushroom.name}</Text>
-          
-          <Image 
-            source={{ uri: mushroom.imageUri }} 
+
+          <Image
+            source={{ uri: mushroom.imageUri }}
             style={styles.image}
           />
-          
+
           <View style={styles.details}>
             <Text style={styles.detailText}>
               📅 {formattedDateTime}
             </Text>
-            
+
             <View style={styles.locationContainer}>
               {mushroom.isFallbackLocation ? (
                 <Text style={[styles.locationText, styles.fallbackText]}>
@@ -54,7 +55,28 @@ export const MushroomFindModal = ({ visible, mushroom, onClose }: MushroomFindMo
           </View>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
+              style={[styles.button, styles.deleteButton]}
+              onPress={() => {
+                Alert.alert(
+                  'Delete mushroom?',
+                  'Are you sure you want to delete this find?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: () => {
+                        if (mushroom) onDelete(mushroom.id);
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[styles.button, styles.closeButton]}
               onPress={onClose}
             >
@@ -131,10 +153,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#4CAF50',
   },
   closeButtonText: {
     color: '#333',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
+  },
+  deleteButtonText: {
+    color: '#fff',
     fontWeight: '600',
     fontSize: 14,
   },

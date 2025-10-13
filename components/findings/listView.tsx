@@ -10,6 +10,9 @@ import {
 import { MushroomCatch } from '@/types/mushroom.types';
 import { MushroomFindModal } from '@/components/findings/mushroomFindModal';
 import { MapFindViewRef } from '@/components/findings/mapFindView';
+import { storageService } from '@/services/storageService';
+import { useCollection } from '@/hooks/use-collection';
+
 
 interface ListViewProps {
   mushrooms: MushroomCatch[];
@@ -19,11 +22,12 @@ interface ListViewProps {
 
 export const ListView = ({ mushrooms, switchToMap, mapRef }: ListViewProps) => {
   const [selectedMushroom, setSelectedMushroom] = React.useState<MushroomCatch | null>(null);
-
+  const { refreshCollection } = useCollection();
   const sortedMushrooms = [...mushrooms].sort((a, b) => b.timestamp - a.timestamp);
 
+
   const handlePinPress = (mushroom: MushroomCatch) => {
-    switchToMap(); 
+    switchToMap();
     setTimeout(() => {
       mapRef.current?.focusOnMushroom(mushroom); // Focus with zoom in on mushroom
     }, 300); // Wait for map to render
@@ -64,8 +68,14 @@ export const ListView = ({ mushrooms, switchToMap, mapRef }: ListViewProps) => {
         visible={!!selectedMushroom}
         mushroom={selectedMushroom}
         onClose={() => setSelectedMushroom(null)}
+        onDelete={async (id) => {
+          await storageService.removeFromCollection(id);
+          await refreshCollection();
+          setSelectedMushroom(null);
+        }}
       />
     </View>
+
   );
 };
 

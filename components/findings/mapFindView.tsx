@@ -3,6 +3,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { MushroomCatch } from '@/types/mushroom.types';
 import { MushroomFindModal } from '@/components/findings/mushroomFindModal';
+import { storageService } from '@/services/storageService';
+import { useCollection } from '@/hooks/use-collection';
+
 
 interface MapFindViewProps {
   mushrooms: MushroomCatch[];
@@ -16,6 +19,7 @@ export interface MapFindViewRef {
 export const MapFindView = forwardRef<MapFindViewRef, MapFindViewProps>(({ mushrooms, loading = false }, ref) => {
   const [selectedMushroom, setSelectedMushroom] = useState<MushroomCatch | null>(null);
   const mapRef = useRef<MapView>(null);
+  const { refreshCollection } = useCollection();
 
   const handleMarkerPress = (mushroom: MushroomCatch) => {
     setSelectedMushroom(mushroom);
@@ -82,8 +86,14 @@ export const MapFindView = forwardRef<MapFindViewRef, MapFindViewProps>(({ mushr
         visible={!!selectedMushroom}
         mushroom={selectedMushroom}
         onClose={handleCloseModal}
+        onDelete={async (id) => {
+          await storageService.removeFromCollection(id);
+          await refreshCollection();
+          handleCloseModal();
+        }}
       />
     </View>
+
   );
 });
 
