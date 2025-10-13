@@ -37,6 +37,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     "expo-router",
+    "expo-asset", //For filling app with testMushrooms
     [
       "expo-splash-screen",
       {
