@@ -1,24 +1,26 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TextStyle } from 'react-native';
 
 interface LocationDisplayProps {
   locationLoading: boolean;
   currentLocation: { latitude: number; longitude: number } | null;
   isFallbackLocation: boolean;
+  style?: TextStyle;
 }
 
 export const LocationDisplay = ({
   locationLoading,
   currentLocation,
-  isFallbackLocation
+  isFallbackLocation,
+  style
 }: LocationDisplayProps) => {
   return (
     <View style={styles.locationContainer}>
       {locationLoading ? (
-        <Text style={styles.locationText}>📍 Getting location...</Text>
+        <Text style={[styles.locationText, style]}>📍 Getting location...</Text>
       ) : currentLocation ? (
         <View style={styles.locationRow}>
-          <Text style={styles.locationText}>📍 </Text>
-          <Text style={styles.locationText}>
+          <Text style={[styles.locationText, style]}>📍 </Text>
+          <Text style={[styles.locationText, style]}>
             {isFallbackLocation
               ? 'GPS position not available'
               : `Location: ${currentLocation.latitude.toFixed(4)}, ${currentLocation.longitude.toFixed(4)}`}

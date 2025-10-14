@@ -1,54 +1,24 @@
 import { useState } from 'react';
-import { MushroomSuggestion } from '@/types/mushroom.types';
-import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
-
-const mushroomApiKey = Constants.expoConfig?.extra?.mushroomApiKey;
+import { mushroomApiService } from '@/services/mushroomApiService';
+//import { MushroomSuggestion } from '@/types/mushroom.types';
+import { useMushroomStore } from '@/stores/useMushroomStore';
 
 export const useMushroomIdentification = () => {
-  const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<MushroomSuggestion[]>([]);
+ const [loading, setLoading] = useState(false);
+  const setSuggestions = useMushroomStore((state) => state.setSuggestions);
+  const setAccessToken = useMushroomStore((state) => state.setAccessToken);
+  const clearStore = useMushroomStore((state) => state.clear);
 
   const identifyMushroom = async (imageUri: string) => {
-    if (!mushroomApiKey) {
-      console.log('Problem with API key');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      if (typeof window !== 'undefined') {
-        // For web
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
+      let processedImageUri = imageUri;
 
-        const formData = new FormData();
-        formData.append('images', blob, 'photo.jpg');
-
-        const apiResponse = await fetch('https://mushroom.kindwise.com/api/v1/identification', {
-          method: 'POST',
-          headers: {
-            'Api-Key': mushroomApiKey,
-          },
-          body: formData,
-        });
-
-        if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
-
-        const data = await apiResponse.json();
-
-        if (data.result?.classification?.suggestions?.length > 0) {
-          const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
-            name: s.name,
-            probability: s.probability,
-          }));
-          setSuggestions(mushroomSuggestions);
-        } else {
-          console.log('No mushroom identified');
-        }
-      } else {
-        // For native (iOS/Android)
+      // Native (iOS/Android): copy image to cache
+      if (Platform.OS !== 'web') {
         const fileInfo = await FileSystem.getInfoAsync(imageUri);
         if (!fileInfo.exists) {
           console.log('File not found:', imageUri);
@@ -59,51 +29,33 @@ export const useMushroomIdentification = () => {
         const cachePath = FileSystem.cacheDirectory + `upload.${extension}`;
         await FileSystem.copyAsync({ from: imageUri, to: cachePath });
 
-        const formData = new FormData();
-        formData.append('images', {
-          uri: cachePath,
-          name: `photo.${extension}`,
-          type: extension === 'png' ? 'image/png' : 'image/jpeg',
-        } as any);
-
-        const apiResponse = await fetch('https://mushroom.kindwise.com/api/v1/identification', {
-          method: 'POST',
-          headers: {
-            'Api-Key': mushroomApiKey,
-          },
-          body: formData,
-        });
-
-        if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
-
-        const data = await apiResponse.json();
-
-        if (data.result?.classification?.suggestions?.length > 0) {
-          const mushroomSuggestions = data.result.classification.suggestions.map((s: any) => ({
-            name: s.name,
-            probability: s.probability,
-          }));
-          setSuggestions(mushroomSuggestions);
-        } else {
-          console.log('No mushroom identified');
-        }
+        processedImageUri = cachePath;
       }
+
+      const { suggestions, accessToken } = await mushroomApiService.identifyMushroom(processedImageUri);
+
+      setSuggestions(suggestions);
+      setAccessToken(accessToken);
     } catch (error) {
       console.log('Identification error:', error);
-      throw new Error('Could not identify the mushroom');
+      alert('Could not identify the mushroom. Please try again!');
     } finally {
       setLoading(false);
     }
   };
 
   const clearResults = () => {
-    setSuggestions([]);
+  clearStore();
   };
+
+  const suggestions = useMushroomStore((state) => state.suggestions);
+  const accessToken = useMushroomStore((state) => state.accessToken);
 
   return {
     loading,
     suggestions,
+    accessToken,
     identifyMushroom,
-    clearResults
+    clearResults,
   };
 };

@@ -2,26 +2,56 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MushroomSuggestion } from '@/types/mushroom.types';
 
+
 interface MushroomSuggestionsProps {
     suggestions: MushroomSuggestion[];
     onAddToCollection: (mushroomName: string) => void;
+    imageUri?: string;
+    accessToken?: string;
+}
+
+function getEdibilityEmoji(edibility?: string | null): string {
+    switch (edibility?.toLowerCase()) {
+        case 'caution':
+            return '⚠️';
+        case 'poisonous':
+            return '☠️';
+        case 'deadly':
+            return '💀';
+        default:
+            return '';
+    }
 }
 
 export const MushroomSuggestions = ({
     suggestions,
-    onAddToCollection
+    onAddToCollection,
+    imageUri,
+    accessToken,
 }: MushroomSuggestionsProps) => {
     const router = useRouter();
 
     if (suggestions.length === 0) return null;
 
+    // Log fo test of id
+    suggestions.forEach((s, i) => {
+        console.log(`Suggestion #${i + 1}:`, {
+            name: s.name,
+            id: s.id,
+            probability: s.probability,
+        });
+    });
+console.log('imageUri in MushroomSuggestions:', imageUri);
+
     return (
         <View style={styles.suggestionsContainer}>
             <Text style={styles.suggestionsTitle}>Top Matches:</Text>
-            {suggestions.map((mushroom, index) => (
-                <View key={index} style={styles.mushroomItem}>
+            {suggestions.map((mushroom) => (
+                <View key={mushroom.id} style={styles.mushroomItem}>
                     <View style={styles.mushroomInfo}>
-                        <Text style={styles.mushroomName}>{mushroom.name}</Text>
+                        <Text style={styles.mushroomName}>
+                            {mushroom.name} {getEdibilityEmoji(mushroom.edibility)}
+                        </Text>
                         <Text style={styles.mushroomProbability}>
                             {Math.round(mushroom.probability * 100)}%
                         </Text>
@@ -30,13 +60,18 @@ export const MushroomSuggestions = ({
                     <View style={styles.iconsContainer}>
                         <Pressable
                             style={styles.infoIcon}
-                            onPress={() => router.push({
-                                pathname: '/info',
-                                params: {
-                                    mushroomName: mushroom.name,
-                                    showBasket: 'true'  // Prop for showing basket icon in info screen
-                                }
-                            })}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/info',
+                                    params: {
+                                        mushroomId: mushroom.id,
+                                        mushroomName: mushroom.name,
+                                        showBasket: 'true',
+                                        imageUri: imageUri,
+                                        accessToken: accessToken || mushroom.accessToken || '',
+                                    },
+                                })
+                            }
                         >
                             <Text style={styles.infoIconText}>i</Text>
                         </Pressable>
@@ -56,6 +91,7 @@ export const MushroomSuggestions = ({
 const styles = StyleSheet.create({
     suggestionsContainer: {
         marginTop: 20,
+        marginBottom: 30,
     },
     suggestionsTitle: {
         fontSize: 18,
