@@ -12,6 +12,8 @@ interface MushroomSuggestionsProps {
 
 function getEdibilityEmoji(edibility?: string | null): string {
     switch (edibility?.toLowerCase()) {
+        case 'choice':
+            return '😋';
         case 'caution':
             return '⚠️';
         case 'poisonous':
