@@ -1,22 +1,12 @@
-import { Image } from 'expo-image';
-
-import { Platform, StyleSheet, View } from 'react-native';
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-import { LocationDisplay } from '@/components/location/locationDisplay';
-import { useLocation } from '@/hooks/use-location';
 import { Hero } from '@/components/hero';
 import { LocationDisplay } from '@/components/location/locationDisplay';
 import { ReadMoreBtn } from '@/components/read-more-btn';
 import { useLocation } from '@/hooks/use-location';
+import { hasSeedData, seedMushroomCatches } from '@/utils/seedData';
 import { Image } from 'expo-image';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { seedMushroomCatches, hasSeedData } from '@/utils/seedData';
-import { useEffect } from 'react';
 
 
 export default function HomeScreen() {
@@ -99,10 +89,10 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  content: {
+ /* content: {
     flex: 1,
     zIndex: 1,
-  },
+  },*/
   logoContainer: {
     height: 100,
     alignItems: 'center',
@@ -137,9 +127,9 @@ const styles = StyleSheet.create({
     flex: 1,
     //flexWrap: 'wrap',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-   // alignContent: 'center',
+    //alignContent: 'center',
     gap: 10,
   },
   buttonWrapper: {

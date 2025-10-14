@@ -31,13 +31,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="finds"
-        options={{
-          title: 'Fungi Finds',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="location.circle.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="identify"
         options={{
           title: 'Identify & Save',
@@ -45,10 +38,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="gallery"
+        name="finds"
         options={{
-          title: 'Gallery',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="mushroom" color={color} />,
+          title: 'Fungi Finds',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="location.circle.fill" color={color} />,
         }}
       />
     </Tabs>
