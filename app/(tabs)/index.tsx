@@ -1,26 +1,21 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, View } from 'react-native';
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-import { LocationDisplay } from '@/components/location/locationDisplay';
-import { useLocation } from '@/hooks/use-location';
 import { Hero } from '@/components/hero';
+import { LocationDisplay } from '@/components/location/locationDisplay';
 import { ReadMoreBtn } from '@/components/read-more-btn';
+import { useLocation } from '@/hooks/use-location';
+import { Image } from 'expo-image';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
+  const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <View style={styles.homeContainer}>
         <Image
-            source={require('@/assets/images/grass4.jpg')}
-            style={styles.grassBackground}
-          />
+          source={require('@/assets/images/grass4.jpg')}
+          style={styles.grassBackground}
+        />
         <View style={styles.logoContainer}>
 
           <Image
@@ -30,55 +25,28 @@ const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
         </View>
 
         <Hero />
-         <LocationDisplay
+
+        <View style={styles.contentContainer}>
+          <View style={styles.locationWrapper}>
+            <LocationDisplay
             locationLoading={locationLoading}
             currentLocation={currentLocation}
             isFallbackLocation={isFallbackLocation}
-            style={{ fontSize: 18, margin: 20}}
-          />
-        <ReadMoreBtn />
+            style={styles.location}
+            />
+          </View>
+          
+          <View style={styles.buttonWrapper}>
+            <ReadMoreBtn />
+          </View>
+        </View>
+
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-  // Nytt importerat
-   /* logoContainer: {
-    height: 100,
-    position: 'relative',
-    overflow: 'hidden',
-    //backgroundColor: '#7cac72ff'
-  },*/
-  /*grassImage: {
-    height: 195, 
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    resizeMode: 'cover',
-  },*/
- /* logoImage: {
-    height: '100%',
-    width: '100%',
-    position: 'absolute',
-    resizeMode: 'contain',
-  },*/
   safeArea: {
     flex: 1,
   },
@@ -86,7 +54,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-    grassBackground: {
+  grassBackground: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -96,18 +64,41 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-    content: {
+  content: {
     flex: 1,
     zIndex: 1,
   },
-    logoContainer: {
+  logoContainer: {
     height: 100,
     alignItems: 'center',
     justifyContent: 'center',
   },
-    logoImage: {
+  logoImage: {
     height: '100%',
     width: '100%',
     resizeMode: 'contain',
   },
+  location: {
+    flexDirection: 'row',
+    alignContent: 'flex-end',
+    fontSize: 18,
+    margin: 20,
+  },
+  contentContainer: {
+    flex: 1,
+    //flexWrap: 'wrap',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+   // alignContent: 'center',
+    gap: 10,
+  },
+  buttonWrapper: {
+    paddingBottom: 25,
+  },
+  locationWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingBottom: 120,
+  }
 });
