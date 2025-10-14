@@ -1,3 +1,13 @@
+import { Image } from 'expo-image';
+
+import { Platform, StyleSheet, View } from 'react-native';
+import { HelloWave } from '@/components/hello-wave';
+import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Link } from 'expo-router';
+import { LocationDisplay } from '@/components/location/locationDisplay';
+import { useLocation } from '@/hooks/use-location';
 import { Hero } from '@/components/hero';
 import { LocationDisplay } from '@/components/location/locationDisplay';
 import { ReadMoreBtn } from '@/components/read-more-btn';
@@ -5,9 +15,34 @@ import { useLocation } from '@/hooks/use-location';
 import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { seedMushroomCatches, hasSeedData } from '@/utils/seedData';
+import { useEffect } from 'react';
+
 
 export default function HomeScreen() {
   const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
+
+useEffect(() => {
+    initializeSeedData();
+  }, []);
+
+  // Add mushroom test data
+   const initializeSeedData = async () => {
+    try {
+      const hasData = await hasSeedData();
+      
+      if (!hasData) {
+        console.log('No test data, creating seed-data...');
+        await seedMushroomCatches();
+        console.log('Seed-data created!');
+      } else {
+        console.log('Seed-data already present');
+      }
+    } catch (error) {
+      console.error('Error initializing seed-data:', error);
+    }
+  };
+
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -77,6 +112,20 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     resizeMode: 'contain',
+  },
+  seedingIndicator: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 12,
+    borderRadius: 8,
+  },
+  seedingText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: 14,
   },
   location: {
     flexDirection: 'row',
