@@ -16,22 +16,25 @@ export function ReadMoreBtn() {
 
     return (
         <TouchableOpacity style={styles.button} onPress={handlePress}>
-            <Text style={styles.buttonText}>Read more about mushrooms</Text>
+            <Text style={styles.buttonText}>Learn More</Text>
         </TouchableOpacity>
     )
 }
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: '#b4603eff',
-        padding: 12,
+        backgroundColor: '#fae9bc',
+        padding: 20,
         borderRadius: 20,
         alignSelf: 'center',
-        paddingHorizontal: 18,
+        paddingHorizontal: 30,
+        marginTop: 16,
+        width: 300,
     },
     buttonText: {
-        color: 'white',
-        fontSize: 16,
+        color: '#873414',
+        fontSize: 20,
+        fontWeight: '600',
         textAlign: 'center',
     },
 });

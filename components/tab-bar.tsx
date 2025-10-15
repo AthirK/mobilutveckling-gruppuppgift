@@ -42,7 +42,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
                 style: styles.buttonContent,
                 children: options.tabBarIcon?.({ 
                   focused: isFocused, 
-                  color: isFocused ? '#e98800ff' : '#737373',
+                  color: isFocused ? '#873414' : '#957a6dff',
                   size: 28 
                 }),
               })

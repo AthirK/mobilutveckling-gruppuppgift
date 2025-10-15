@@ -1,7 +1,7 @@
 import { Hero } from '@/components/hero';
-import { LocationDisplay } from '@/components/location/locationDisplay';
 import { ReadMoreBtn } from '@/components/read-more-btn';
-import { useLocation } from '@/hooks/use-location';
+import { IdentifyButton, ViewFindsButton } from '@/components/navigate-btns';
+// import { useLocation } from '@/hooks/use-location';
 import { hasSeedData, seedMushroomCatches } from '@/utils/seedData';
 import { Image } from 'expo-image';
 import { useEffect } from 'react';
@@ -10,17 +10,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function HomeScreen() {
-  const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
+  // const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
 
-useEffect(() => {
+  useEffect(() => {
     initializeSeedData();
   }, []);
 
   // Add mushroom test data
-   const initializeSeedData = async () => {
+  const initializeSeedData = async () => {
     try {
       const hasData = await hasSeedData();
-      
+
       if (!hasData) {
         console.log('No test data, creating seed-data...');
         await seedMushroomCatches();
@@ -53,15 +53,8 @@ useEffect(() => {
 
         <View style={styles.contentContainer}>
           <View style={styles.locationWrapper}>
-            <LocationDisplay
-            locationLoading={locationLoading}
-            currentLocation={currentLocation}
-            isFallbackLocation={isFallbackLocation}
-            style={styles.location}
-            />
-          </View>
-          
-          <View style={styles.buttonWrapper}>
+            <IdentifyButton />
+            <ViewFindsButton />
             <ReadMoreBtn />
           </View>
         </View>
@@ -89,10 +82,10 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
- /* content: {
-    flex: 1,
-    zIndex: 1,
-  },*/
+  /* content: {
+     flex: 1,
+     zIndex: 1,
+   },*/
   logoContainer: {
     height: 100,
     alignItems: 'center',
@@ -133,7 +126,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   buttonWrapper: {
-    paddingBottom: 25,
+    paddingBottom: 100,
   },
   locationWrapper: {
     flex: 1,

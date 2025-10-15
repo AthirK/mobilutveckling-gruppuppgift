@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     maxWidth: 95,
   },
   cameraButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#46c048ff',
   },
   galleryButton: {
     backgroundColor: '#2196F3',
