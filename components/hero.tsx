@@ -18,13 +18,20 @@ const styles = StyleSheet.create({
     heroContainer: {
         marginTop: 20,
         padding: 8,
-        paddingHorizontal: 20,
+        paddingHorizontal: 22,
+        alignItems: 'center',
+        paddingBottom: 0,
     },
     heroText1: {
         color: 'white',
-        fontSize: 30,
+        fontSize: 33,
         fontWeight: '700',
         lineHeight: 38,
+        textShadowColor: '#6a2910ff',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+        textAlign: 'center',
+        shadowOpacity: 0.05,
     },
     heroText2: {
         color: 'white',
@@ -32,5 +39,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         lineHeight: 28,
         marginTop: 10,
+        textAlign: 'center',
+        textShadowColor: '#b25e3dffff',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 1,
+        shadowOpacity: 0.05,
     },
 });
