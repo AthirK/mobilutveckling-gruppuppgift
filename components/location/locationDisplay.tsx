@@ -40,17 +40,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7eebaa4',
-    borderColor: '#944504ab',
-    borderWidth: 2,
-    borderRadius: 20,
     maxWidth: '100%',
     padding: 8,
     alignSelf: 'center',
   },
   locationText: {
     fontSize: 12,
-    color: '#666',
+    color: '#9c7160ff',
     fontStyle: 'italic',
   },
 });

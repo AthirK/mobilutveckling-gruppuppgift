@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from '@/components/findings/tabs';
 import { MapFindView, MapFindViewRef } from '@/components/findings/mapFindView';
@@ -51,23 +52,23 @@ export default function Finds() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <ActivityIndicator size="large" color="#666" />
         <Text style={styles.emptyText}>Loading your fungi finds...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (collection.length === 0) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.emptyText}>No mushrooms collected yet</Text>
         <Text style={styles.emptySubtext}>Start by identifying some mushrooms!</Text>
-      </View>
+      </SafeAreaView>
     );
   }
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+    <SafeAreaView style={styles.container}>
       <Tabs
         activeView={activeView}
         onViewChange={setActiveView}
@@ -84,19 +85,22 @@ export default function Finds() {
           mapRef={mapRef}
         />
       )}
-   <TouchableOpacity style={styles.fab} onPress={() => setMenuOpen(!menuOpen)}>
+      <TouchableOpacity
+        style={[styles.fab, { bottom: insets.bottom + 70 }]}
+        onPress={() => setMenuOpen(!menuOpen)}
+      >
         <Text style={styles.fabIcon}>☰</Text>
       </TouchableOpacity>
 
       {menuOpen && (
-        <View style={styles.menu}>
+        <View style={[styles.menu, { bottom: insets.bottom + 130 }]}>
           <TouchableOpacity onPress={handleEmptyBasket} style={styles.menuItem}>
             <Text style={styles.menuItemText}>Empty Basket 🗑️</Text>
           </TouchableOpacity>
           {/* More objects in menu? */}
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -120,9 +124,8 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 35,
-    right: 10,
-    backgroundColor: '#333',
+    right: 20,
+    backgroundColor: 'white',
     width: 48,
     height: 48,
     borderRadius: 8,
@@ -130,27 +133,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 1,
     zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   fabIcon: {
-    color: 'white',
+    color: '#873414',
     fontSize: 24,
   },
- menu: {
-  position: 'absolute',
-  right: 10,
-  bottom: 85,
-  backgroundColor: '#fff',
-  borderRadius: 8,
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 4,
-  elevation: 6,
-  zIndex: 11,
-  minWidth: 160,
-},
+  menu: {
+    position: 'absolute',
+    right: 20,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 6,
+    zIndex: 11,
+    minWidth: 160,
+  },
   menuItem: {
     paddingVertical: 8,
   },
