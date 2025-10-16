@@ -72,7 +72,7 @@ export default function InfoScreen() {
     <View style={styles.fullScreen}>
       <ScrollView
         style={styles.container}
-  contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
       >
         <View style={styles.header}>
           <Text style={styles.title}>About {mushroom.name}</Text>
@@ -83,12 +83,12 @@ export default function InfoScreen() {
 
         <Text style={styles.sectionTitle}>Description:</Text>
         {(mushroom.description || 'No description available')
-  .split('\n')
-  .map((para, index) => (
-    <Text key={index} style={styles.text}>
-      {para.trim()}
-    </Text>
-))}
+          .split('\n')
+          .map((para, index) => (
+            <Text key={index} style={styles.text}>
+              {para.trim()}
+            </Text>
+          ))}
 
         <Text style={styles.sectionTitle}>Edibility:</Text>
         <Text style={styles.text}>{mushroom.edibility || 'Unknown'}</Text>
@@ -131,29 +131,29 @@ export default function InfoScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-  <Pressable style={[styles.footerButton, styles.footerButtonBack]} onPress={() => navigation.goBack()}>
-    <Text style={styles.footerButtonText}>⬅ Go back</Text>
-  </Pressable>
+        <Pressable style={[styles.footerButton, styles.footerButtonBack]} onPress={() => navigation.goBack()}>
+          <Text style={styles.footerButtonText}>⬅ Go back</Text>
+        </Pressable>
 
-  {mushroom.url && (
-    <Pressable style={[styles.footerButton, styles.footerButtonWiki]} onPress={handleOpenWiki}>
-      <Text style={styles.footerButtonText}>Wikipedia</Text>
-    </Pressable>
-  )}
+        {mushroom.url && (
+          <Pressable style={[styles.footerButton, styles.footerButtonWiki]} onPress={handleOpenWiki}>
+            <Text style={styles.footerButtonText}>Wikipedia</Text>
+          </Pressable>
+        )}
 
-  {showBasket && (
-    <Pressable
-      onPress={handleAddToCollection}
-      style={[
-        styles.footerButton,
-        styles.footerButtonPick,
-        showSuccess && styles.footerButtonSuccess,
-      ]}
-    >
-      <Text style={styles.footerButtonText}>Pick 🧺</Text>
-    </Pressable>
-  )}
-</View>
+        {showBasket && (
+          <Pressable
+            onPress={handleAddToCollection}
+            style={[
+              styles.footerButton,
+              styles.footerButtonPick,
+              showSuccess && styles.footerButtonSuccess,
+            ]}
+          >
+            <Text style={styles.footerButtonText}>Pick 🧺</Text>
+          </Pressable>
+        )}
+      </View>
 
       <SuccessToast visible={showSuccess} message={successMessage} />
     </View>
@@ -189,12 +189,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#444',
   },
-text: {
-  marginTop: 8,
-  fontSize: 14,
-  color: '#333',
-  lineHeight: 22,
-},
+  text: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 22,
+  },
   linkText: {
     marginTop: 4,
     fontSize: 14,
@@ -239,34 +239,34 @@ text: {
     borderTopWidth: 1,
     borderTopColor: '#ccc',
   },
-footerButton: {
-  padding: 12,
-  borderRadius: 8,
-  minWidth: 80,
-  alignItems: 'center',
-  flex: 1,
-  maxWidth: 95,
-},
+  footerButton: {
+    padding: 12,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: 'center',
+    flex: 1,
+    maxWidth: 95,
+  },
 
-footerButtonBack: {
-  backgroundColor: '#4CAF50',
-},
+  footerButtonBack: {
+    backgroundColor: '#4CAF50',
+  },
 
-footerButtonWiki: {
-  backgroundColor: '#FFA500',
-},
+  footerButtonWiki: {
+    backgroundColor: '#FFA500',
+  },
 
-footerButtonPick: {
-  backgroundColor: '#007AFF',
-},
+  footerButtonPick: {
+    backgroundColor: '#007AFF',
+  },
 
-footerButtonSuccess: {
-  backgroundColor: '#4CAF50',
-},
+  footerButtonSuccess: {
+    backgroundColor: '#4CAF50',
+  },
 
-footerButtonText: {
-  color: '#fff',
-  fontWeight: '600',
-  fontSize: 14,
-},
+  footerButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
 });

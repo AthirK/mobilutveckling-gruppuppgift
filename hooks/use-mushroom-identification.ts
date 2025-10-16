@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import { mushroomApiService } from '@/services/mushroomApiService';
-//import { MushroomSuggestion } from '@/types/mushroom.types';
 import { useMushroomStore } from '@/stores/useMushroomStore';
 
 export const useMushroomIdentification = () => {
- const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const setSuggestions = useMushroomStore((state) => state.setSuggestions);
   const setAccessToken = useMushroomStore((state) => state.setAccessToken);
   const clearStore = useMushroomStore((state) => state.clear);
@@ -45,7 +44,7 @@ export const useMushroomIdentification = () => {
   };
 
   const clearResults = () => {
-  clearStore();
+    clearStore();
   };
 
   const suggestions = useMushroomStore((state) => state.suggestions);

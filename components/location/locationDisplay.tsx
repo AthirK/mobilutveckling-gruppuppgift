@@ -33,7 +33,7 @@ export const LocationDisplay = ({
 
 const styles = StyleSheet.create({
   locationContainer: {
-   marginTop: 8,
+    marginTop: 8,
   },
   locationColumn: {
     flexDirection: 'row',

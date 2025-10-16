@@ -40,8 +40,6 @@ export const MapFindView = forwardRef<MapFindViewRef, MapFindViewProps>(({ mushr
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       }, 500);
-
-      // setSelectedMushroom(mushroom);
     },
   }));
 

@@ -34,7 +34,7 @@ export const mushroomApiService = {
     } else {
       // Native
       const filename = imageUri.split('/').pop() || 'photo.jpg';
-      
+
       // @ts-ignore - React Native FormData format
       formData.append('images', {
         uri: imageUri,

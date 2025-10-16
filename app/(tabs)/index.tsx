@@ -1,7 +1,6 @@
 import { Hero } from '@/components/hero';
 import { ReadMoreBtn } from '@/components/read-more-btn';
 import { IdentifyButton, ViewFindsButton } from '@/components/navigate-btns';
-// import { useLocation } from '@/hooks/use-location';
 import { hasSeedData, seedMushroomCatches } from '@/utils/seedData';
 import { Image } from 'expo-image';
 import { useEffect } from 'react';
@@ -10,8 +9,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function HomeScreen() {
-  // const { currentLocation, locationLoading, isFallbackLocation } = useLocation();
-
   useEffect(() => {
     initializeSeedData();
   }, []);
@@ -82,10 +79,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  /* content: {
-     flex: 1,
-     zIndex: 1,
-   },*/
   logoContainer: {
     height: 100,
     alignItems: 'center',
@@ -118,11 +111,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    //flexWrap: 'wrap',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    //alignContent: 'center',
     gap: 10,
   },
   buttonWrapper: {

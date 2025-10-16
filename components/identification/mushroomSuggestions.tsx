@@ -35,16 +35,6 @@ export const MushroomSuggestions = ({
 
     if (suggestions.length === 0) return null;
 
-    // Log fo test of id
-    suggestions.forEach((s, i) => {
-        console.log(`Suggestion #${i + 1}:`, {
-            name: s.name,
-            id: s.id,
-            probability: s.probability,
-        });
-    });
-console.log('imageUri in MushroomSuggestions:', imageUri);
-
     return (
         <View style={styles.suggestionsContainer}>
             <Text style={styles.suggestionsTitle}>Top Matches:</Text>

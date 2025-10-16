@@ -62,20 +62,7 @@ export const useImagePicker = () => {
       const newUri = FileSystem.documentDirectory + `mushroom-${id}.${extension}`;
       await FileSystem.copyAsync({ from: uri, to: newUri });
       processedUri = newUri;
-    }  /*else {
-    // Web: Convert to base64 - so page reloads don't lose the image (since we can't save to filesystem)
-    const response = await fetch(uri);
-    const blob = await response.blob();
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64data = reader.result as string;
-      setSelectedImage(base64data);
-    };
-    reader.readAsDataURL(blob);
-    setImageId(id);
-    return;
-  }*/
+    }
     setSelectedImage(processedUri);
     setImageId(id);
   };

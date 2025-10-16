@@ -18,7 +18,7 @@ export const Tabs = ({ activeView, onViewChange, mapCount, listCount }: TabsProp
           Map ({mapCount})
         </Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity
         style={[styles.tab, activeView === 'list' && styles.activeTab]}
         onPress={() => onViewChange('list')}

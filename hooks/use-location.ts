@@ -7,11 +7,11 @@ import { useLocationStore } from '@/stores/useLocationStore';
 const FALLBACK_LOCATION = Constants.expoConfig?.extra?.fallbackLocation;
 
 export const useLocation = () => {
-  const { 
-    currentLocation, 
-    locationLoading, 
-    setLocation, 
-    setLocationLoading 
+  const {
+    currentLocation,
+    locationLoading,
+    setLocation,
+    setLocationLoading
   } = useLocationStore();
 
   const isFallbackLocation = currentLocation?.latitude === FALLBACK_LOCATION?.latitude &&
@@ -21,7 +21,7 @@ export const useLocation = () => {
     if (Platform.OS === 'web') {
       // Web
       setLocationLoading(true);
-      
+
       if (!navigator.geolocation) {
         console.warn('Geolocation not supported on web');
         setLocation(FALLBACK_LOCATION);
@@ -54,7 +54,7 @@ export const useLocation = () => {
 
       (async () => {
         setLocationLoading(true);
-        
+
         try {
           const { status } = await Location.requestForegroundPermissionsAsync();
           if (status !== 'granted') {

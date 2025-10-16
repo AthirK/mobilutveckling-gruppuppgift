@@ -12,7 +12,7 @@ export const useCollection = () => {
 
   useEffect(() => {
     loadCollection();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCollection = async () => {

@@ -49,11 +49,11 @@ export function IconSymbol({
   weight?: SymbolWeight;
 }) {
   const mapping = MAPPING[name];
-  
+
   // Check if this icon should use MaterialCommunityIcons
   if (typeof mapping === 'object' && mapping.library === 'community') {
     return <MaterialCommunityIcons color={color} size={size} name={mapping.name} style={style} />;
   }
-  
+
   return <MaterialIcons color={color} size={size} name={mapping as MaterialIconName} style={style} />;
 }

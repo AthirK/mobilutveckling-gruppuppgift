@@ -1,4 +1,4 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 import { MushroomSuggestion } from '@/types/mushroom.types';
 
 interface MushroomStore {

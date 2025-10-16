@@ -16,7 +16,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-         <Stack.Screen
+        <Stack.Screen
           name="info"
           options={{
             headerShown: false,
@@ -26,7 +26,7 @@ export default function RootLayout() {
         />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
-     <StatusBar style='auto'/>
+      <StatusBar style='auto' />
     </ThemeProvider>
   );
 }

@@ -13,7 +13,6 @@ export const MushroomImage = ({
 }: MushroomImageProps) => {
     return (
         <View style={styles.imageContainer}>
-            {/* Wrapper for position of clearButton */}
             <View style={styles.imageWrapper}>
                 <Image
                     source={imageUri ? { uri: imageUri } : placeholderImage}
