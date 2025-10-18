@@ -21,7 +21,7 @@ export const SuccessToast = ({
 const styles = StyleSheet.create({
   successToast: {
     position: 'absolute',
-    bottom: 10,
+    top: 300,
     left: 20,
     right: 20,
     backgroundColor: '#4CAF50',

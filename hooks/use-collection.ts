@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MushroomCatch } from '@/types/mushroom.types';
 import { storageService } from '@/services/storageService';
 import { useCollectionStore } from '@/stores/useCollectionStore';
+import * as Crypto from 'expo-crypto';
 
 export const useCollection = () => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -37,7 +38,7 @@ export const useCollection = () => {
 
     try {
       const newCatch: MushroomCatch = {
-        id: imageId,
+        id: Crypto.randomUUID(), //Previously used imageId, but this caused problem if image was used more than once.
         name: mushroomName,
         imageUri,
         location,

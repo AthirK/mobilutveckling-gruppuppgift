@@ -57,7 +57,7 @@ export default function IdentifyAndSave() {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 10 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
       >
         <View style={styles.header}>
           <Text style={styles.title}>Identify and collect mushrooms</Text>

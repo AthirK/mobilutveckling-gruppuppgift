@@ -80,7 +80,7 @@ export const ListView = ({ mushrooms, switchToMap, mapRef }: ListViewProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#ffffffff' },
+  container: { flex: 1, backgroundColor: '#ffffffff', paddingBottom: 100},
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
