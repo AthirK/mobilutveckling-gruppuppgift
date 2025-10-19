@@ -7,6 +7,7 @@ import { ListView } from '@/components/findings/listView';
 import { useCollectionStore } from '@/stores/useCollectionStore';
 import { useCollection } from '@/hooks/use-collection';
 import { storageService } from '@/services/storageService';
+import { StatusBar } from 'expo-status-bar';
 
 type ViewMode = 'map' | 'list';
 
@@ -68,6 +69,7 @@ export default function Finds() {
   }
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
       <Tabs
         activeView={activeView}
         onViewChange={setActiveView}

@@ -11,6 +11,7 @@ import { useMushroomIdentification } from '@/hooks/use-mushroom-identification';
 import { useMushroomStore } from '@/stores/useMushroomStore';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
 const placeholderImage = require('../../assets/images/placeholder.jpg');
 
@@ -56,6 +57,7 @@ export default function IdentifyAndSave() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar style="dark" />
       <ScrollView style={styles.container}
         contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
       >

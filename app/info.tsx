@@ -16,6 +16,7 @@ import { useLocation } from '@/hooks/use-location';
 import { useImagePicker } from '@/hooks/use-image-picker';
 import { SuccessToast } from '@/components/ui/successToast';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
 export default function InfoScreen() {
   const navigation = useNavigation();
@@ -70,6 +71,7 @@ export default function InfoScreen() {
 
   return (
     <View style={styles.fullScreen}>
+      <StatusBar style="dark" />
       <ScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
