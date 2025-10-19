@@ -5,11 +5,14 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import TabBar from '@/components/tab-bar';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { StatusBar } from 'expo-status-bar'; 
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
+        <>
+    <StatusBar style="dark" />
     <Tabs
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
@@ -45,5 +48,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </>
   );
 }

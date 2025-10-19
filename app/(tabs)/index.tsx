@@ -19,51 +19,56 @@ export default function HomeScreen() {
       const hasData = await hasSeedData();
 
       if (!hasData) {
-        console.log('No test data, creating seed-data...');
+        console.log('No test mushroom catches , creating test catch...');
         await seedMushroomCatches();
-        console.log('Seed-data created!');
-      } else {
-        console.log('Seed-data already present');
+        console.log('Test catch created!');
       }
     } catch (error) {
-      console.error('Error initializing seed-data:', error);
+      console.error('Error initializing test catches:', error);
     }
   };
 
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <View style={styles.homeContainer}>
-        <Image
-          source={require('@/assets/images/grass4.jpg')}
-          style={styles.grassBackground}
-        />
-        <View style={styles.logoContainer}>
+      <View style={styles.container}>
+      {/* Background image outside SafeAreaView to get background on statusBar */}
+      <Image
+        source={require('@/assets/images/grass4.jpg')}
+        style={styles.grassBackground}
+      />
 
-          <Image
-            source={require('@/assets/images/fungifind2.png')}
-            style={styles.logoImage}
-          />
-        </View>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+        <View style={styles.homeContainer}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('@/assets/images/fungifind2.png')}
+              style={styles.logoImage}
+            />
+          </View>
 
-        <Hero />
+          <Hero />
 
-        <View style={styles.contentContainer}>
-          <View style={styles.locationWrapper}>
-            <IdentifyButton />
-            <ViewFindsButton />
-            <ReadMoreBtn />
+          <View style={styles.contentContainer}>
+            <View style={styles.locationWrapper}>
+              <IdentifyButton />
+              <ViewFindsButton />
+              <ReadMoreBtn />
+            </View>
           </View>
         </View>
-
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+    container: {
+    flex: 1,
+    position: 'relative',
+  },
   safeArea: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
   homeContainer: {
     flex: 1,
@@ -78,6 +83,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    zIndex: -1,
   },
   logoContainer: {
     height: 100,
@@ -89,35 +95,13 @@ const styles = StyleSheet.create({
     width: '100%',
     resizeMode: 'contain',
   },
-  seedingIndicator: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    padding: 12,
-    borderRadius: 8,
-  },
-  seedingText: {
-    textAlign: 'center',
-    color: '#fff',
-    fontSize: 14,
-  },
-  location: {
-    flexDirection: 'row',
-    alignContent: 'flex-end',
-    fontSize: 18,
-    margin: 20,
-  },
+
   contentContainer: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     alignItems: 'center',
     gap: 10,
-  },
-  buttonWrapper: {
-    paddingBottom: 100,
   },
   locationWrapper: {
     flex: 1,
