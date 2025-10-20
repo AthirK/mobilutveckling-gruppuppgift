@@ -1,22 +1,22 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  Linking,
   Alert,
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 
-import { useMushroomStore } from '@/stores/useMushroomStore';
-import { useCollection } from '@/hooks/use-collection';
-import { useLocation } from '@/hooks/use-location';
-import { useImagePicker } from '@/hooks/use-image-picker';
 import { SuccessToast } from '@/components/ui/successToast';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCollection } from '@/hooks/use-collection';
+import { useImagePicker } from '@/hooks/use-image-picker';
+import { useLocation } from '@/hooks/use-location';
+import { useMushroomStore } from '@/stores/useMushroomStore';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function InfoScreen() {
   const navigation = useNavigation();
@@ -70,7 +70,7 @@ export default function InfoScreen() {
   }
 
   return (
-    <View style={styles.fullScreen}>
+    <View style={[styles.fullScreen, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
       <ScrollView
         style={styles.container}
@@ -165,7 +165,7 @@ export default function InfoScreen() {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    paddingTop: 30,
+    paddingTop: 60,
     backgroundColor: '#fff',
   },
   container: {

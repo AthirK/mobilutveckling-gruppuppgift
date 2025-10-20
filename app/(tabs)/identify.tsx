@@ -9,9 +9,9 @@ import { useImagePicker } from '@/hooks/use-image-picker';
 import { useLocation } from '@/hooks/use-location';
 import { useMushroomIdentification } from '@/hooks/use-mushroom-identification';
 import { useMushroomStore } from '@/stores/useMushroomStore';
+import { StatusBar } from 'expo-status-bar';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 
 const placeholderImage = require('../../assets/images/placeholder.jpg');
 
@@ -56,10 +56,12 @@ export default function IdentifyAndSave() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
-      <ScrollView style={styles.container}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
+      <ScrollView style={styles.scrollView}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 80
+        }}
       >
         <View style={styles.header}>
           <Text style={styles.title}>Identify and collect mushrooms</Text>
@@ -105,8 +107,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 30,
-    padding: 16,
   },
   header: {
     alignItems: 'center',
@@ -117,5 +117,9 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#873414',
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 });
